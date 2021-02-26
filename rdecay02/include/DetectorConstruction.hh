@@ -78,18 +78,18 @@ class DetectorConstruction : public G4VUserDetectorConstruction
                        
   private:
   
-    G4double           fTargetLength; 
-    G4double           fTargetRadius;
+    G4double           fTargetSide; 
+    G4double           fTargetThickness;
     G4Material*        fTargetMater;
     G4LogicalVolume*   fLogicTarget;
                  
-    G4double           fDetectorLength;
+    G4double           fDetectorSide;
     G4double           fDetectorThickness;
     G4Material*        fDetectorMater;
     G4LogicalVolume*   fLogicDetector;
                
-    G4double           fWorldLength;
-    G4double           fWorldRadius;
+    G4double           fWorldSide;
+    G4double           fWorldThickness;
     G4Material*        fWorldMater;     
     G4VPhysicalVolume* fPhysiWorld;
                 
