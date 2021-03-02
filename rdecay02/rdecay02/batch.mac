@@ -1,0 +1,49 @@
+
+# Batch file for rdecay02, as modified by AB and RF 2021
+#
+# Sets some default verbose
+# and initializes the graphic.
+#
+/control/verbose 2
+/run/verbose 2
+# /event/verbose 2
+#/tracking/verbose 2
+
+# ADDED BY RYAN: Define geometry before /run/initialize
+#
+# /rdecay02/det/setTargetThickness 1000 um # thickness
+# /rdecay02/det/setTargetSide 100 mm
+#/rdecay02/det/setDetectorThickness 20 um
+#/rdecay02/det/setDetectorSide 40 um
+ 
+/run/initialize
+#
+
+
+
+
+# ADDED BY RYAN
+# place the isotopes in the middle of the target, at rest. 
+/gun/particle ion
+/gun/energy 0 MeV
+#/gun/ion 94 239 #plutonium 239
+/gun/ion 94 238 #plutonium 238
+
+#/gun/particle alpha
+#/gun/energy 5.2 MeV
+#/gun/particle gamma
+#/gun/energy 43.5 keV
+
+/process/had/rdm/nucleusLimits 238 238 94 94
+#
+# Need to set file name and energy window.
+# /analysis/setFileName Am241
+# Need to set at least one hist to avoid seg fault (why?)
+/analysis/h1/set 0 1000 5 6 MeV
+
+#
+/process/had/rdm/applyICM true # internal electron conversion
+/process/had/rdm/applyARM true # atomic rearangment model
+/process/had/rdm/hlThreshold 1 s # max level lifetime to be treated as non-metastable
+
+/run/beamOn 10000
