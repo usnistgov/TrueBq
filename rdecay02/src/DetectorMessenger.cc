@@ -41,9 +41,11 @@
 
 DetectorMessenger::DetectorMessenger(DetectorConstruction* Det)
 :G4UImessenger(), 
+
+//2 Dir field and 6commands line fields
  fDetector(Det), fRdecayDir(0), fDetDir(0),
- fTargMatCmd(0), fDetectMatCmd(0), fTargRadiusCmd(0),
- fDetectThicknessCmd(0), fTargLengthCmd(0), fDetectLengthCmd(0) 
+ fTargMatCmd(0), fDetectMatCmd(0), fTargThicknessCmd(0),
+ fDetectThicknessCmd(0), fTargSideCmd(0), fDetectSideCmd(0) 
 { 
   fRdecayDir = new G4UIdirectory("/rdecay02/");
   fRdecayDir->SetGuidance("commands specific to this example");
@@ -57,20 +59,20 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction* Det)
   fTargMatCmd->SetParameterName("choice",false);
   fTargMatCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
   
-  fTargRadiusCmd =
-       new G4UIcmdWithADoubleAndUnit("/rdecay02/det/setTargetRadius", this);
-  fTargRadiusCmd->SetGuidance("Set the Target Radius.");
-  fTargRadiusCmd->SetUnitCategory("Length");
-  fTargRadiusCmd->SetParameterName("choice",false);
-  fTargRadiusCmd->AvailableForStates(G4State_PreInit);  
+  fTargThicknessCmd =
+       new G4UIcmdWithADoubleAndUnit("/rdecay02/det/setTargetThickness", this); //switched from setTargetRadius to setTargetThickness
+  fTargThicknessCmd->SetGuidance("Set the Target Thickness."); //switched radius to thickness
+  fTargThicknessCmd->SetUnitCategory("Length");
+  fTargThicknessCmd->SetParameterName("choice",false);
+  fTargThicknessCmd->AvailableForStates(G4State_PreInit);  
 
   
-  fTargLengthCmd =
-       new G4UIcmdWithADoubleAndUnit("/rdecay02/det/setTargetLength", this);
-  fTargLengthCmd->SetGuidance("Set the Target Length.");
-  fTargLengthCmd->SetUnitCategory("Length");
-  fTargLengthCmd->SetParameterName("choice",false);
-  fTargLengthCmd->AvailableForStates(G4State_PreInit);
+  fTargSideCmd =
+       new G4UIcmdWithADoubleAndUnit("/rdecay02/det/setTargetSide", this); //switched to setTargetSide
+  fTargSideCmd->SetGuidance("Set the Target Side.");
+  fTargSideCmd->SetUnitCategory("Length");
+  fTargSideCmd->SetParameterName("choice",false);
+  fTargSideCmd->AvailableForStates(G4State_PreInit);
   
 
   fDetectMatCmd = new G4UIcmdWithAString("/rdecay02/det/setDetectorMate",this);
@@ -85,12 +87,12 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction* Det)
   fDetectThicknessCmd->SetParameterName("choice",false);
   fDetectThicknessCmd->AvailableForStates(G4State_PreInit);
 
-  fDetectLengthCmd =
-       new G4UIcmdWithADoubleAndUnit("/rdecay02/det/setDetectorLength",this);
-  fDetectLengthCmd->SetGuidance("Set the Detector Length.");
-  fDetectLengthCmd->SetUnitCategory("Length");
-  fDetectLengthCmd->SetParameterName("choice",false);
-  fDetectLengthCmd->AvailableForStates(G4State_PreInit);
+  fDetectSideCmd =
+       new G4UIcmdWithADoubleAndUnit("/rdecay02/det/setDetectorSide",this);//switch it to side
+  fDetectSideCmd->SetGuidance("Set the Detector Side.");
+  fDetectSideCmd->SetUnitCategory("Length");
+  fDetectSideCmd->SetParameterName("choice",false);
+  fDetectSideCmd->AvailableForStates(G4State_PreInit);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -99,10 +101,10 @@ DetectorMessenger::~DetectorMessenger()
 {
   delete fTargMatCmd;
   delete fDetectMatCmd;
-  delete fTargRadiusCmd;
+  delete fTargThicknessCmd;
   delete fDetectThicknessCmd;
-  delete fTargLengthCmd;
-  delete fDetectLengthCmd;
+  delete fTargSideCmd;
+  delete fDetectSideCmd;
   delete fDetDir;
   delete fRdecayDir;  
 }
@@ -114,18 +116,18 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   if (command == fTargMatCmd )
    { fDetector->SetTargetMaterial(newValue);}
    
-  if (command == fTargLengthCmd ) 
-    { fDetector->SetTargetLength(fTargLengthCmd->GetNewDoubleValue(newValue));}
+  if (command == fTargSideCmd ) 
+    { fDetector->SetTargetSide(fTargSideCmd->GetNewDoubleValue(newValue));}
     
-  if (command == fTargRadiusCmd ) 
-    {fDetector->SetTargetRadius(fTargLengthCmd->GetNewDoubleValue(newValue));}
+  if (command == fTargThicknessCmd ) 
+    {fDetector->SetTargetThickness(fTargSideCmd->GetNewDoubleValue(newValue));}
     
   if (command == fDetectMatCmd )
     { fDetector->SetDetectorMaterial(newValue);}
     
-  if (command == fDetectLengthCmd ) 
-    {fDetector->SetDetectorLength(
-                     fDetectLengthCmd->GetNewDoubleValue(newValue));}
+  if (command == fDetectSideCmd ) 
+    {fDetector->SetDetectorSide(
+                     fDetectSideCmd->GetNewDoubleValue(newValue));}
 
   if (command == fDetectThicknessCmd ) 
     {fDetector->SetDetectorThickness(

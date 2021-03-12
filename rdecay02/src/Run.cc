@@ -259,13 +259,13 @@ void Run::EndOfRun()
          << G4BestUnit(fEkin,"Energy") << " through : ";
           
   G4cout << "\n Target   : Length = " 
-         << G4BestUnit(fDetector->GetTargetLength(),"Length")
+         << G4BestUnit(fDetector->GetTargetSide(),"Length")
          << " Radius    = " 
-         << G4BestUnit(fDetector->GetTargetRadius(),"Length")  
+         << G4BestUnit(fDetector->GetTargetThickness(),"Length")  
          << " Material = " 
          << fDetector->GetTargetMaterial()->GetName();
   G4cout << "\n Detector : Length = " 
-         << G4BestUnit(fDetector->GetDetectorLength(),"Length")
+         << G4BestUnit(fDetector->GetDetectorSide(),"Length")
          << " Thickness = " 
          << G4BestUnit(fDetector->GetDetectorThickness(),"Length")  
          << " Material = " 

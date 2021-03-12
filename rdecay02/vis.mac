@@ -1,17 +1,19 @@
-#
-# Macro file for the initialization phase of "TestEm6.cc"
+# vis.mac for rdecay02, as modified by AB and RF 2021
 #
 # Sets some default verbose
 # and initializes the graphic.
 #
 /control/verbose 2
 /run/verbose 2
+
 # ADDED BY RYAN: Define geometry before /run/initialize
+
 # DEFINE GEOMETRY PRIOR TO "/run/initialize"
- /rdecay02/det/setTargetRadius 10 um
- /rdecay02/det/setTargetLength 10 um
- /rdecay02/det/setDetectorThickness 20 um
- /rdecay02/det/setDetectorLength 40 um
+
+/rdecay02/det/setTargetThickness 30 um # thickness
+/rdecay02/det/setTargetSide 1.8 mm
+/rdecay02/det/setDetectorThickness 275 um
+/rdecay02/det/setDetectorSide 10.55 mm
  
  
 /run/initialize
@@ -40,26 +42,29 @@
 /vis/drawVolume
 #
 # Specify view angle:
-/vis/viewer/set/viewpointThetaPhi 45. -90.
+#/vis/viewer/set/viewpointThetaPhi 90 0.
+/vis/viewer/set/viewpointVector 1 0 0
+#/vis/viewer/set/lightsVector -1 0 0
 #
 # Specify zoom value:
-/vis/viewer/zoomTo 1
+/vis/viewer/zoomTo 64
 #
-# Specify style (surface or wireframe):
-/vis/viewer/set/style surface
+# Specify style (surface (s) or wireframe (w)):
+/vis/viewer/set/style w
 # To get nice view
 # /vis/geometry/set/visibility World 0 false
 #
 # Draw coordinate axes:
-#/vis/scene/add/axes 0 0 0 1 m
+#/vis/scene/add/axes 0 0 0 .05 mm
 
 # SET COLOR OF OBJECTS
-#
+# forceWireframe forceSolid
+
 /vis/geometry/set/forceWireframe World 1
-/vis/geometry/set/forceWireframe Detector 1
-/vis/geometry/set/forceWireframe Target 1
-/vis/geometry/set/colour World 0 1 0 0 1  # depth R G B Opacity
-/vis/geometry/set/colour Detector 0 0 0 1 1  # depth R G B Opacity
+/vis/geometry/set/forceSolid Detector 1
+/vis/geometry/set/forceSolid Target 1
+/vis/geometry/set/colour World 0 0 0 0 1  # depth R G B Opacity
+/vis/geometry/set/colour Detector 0 0 1 1 1  # depth R G B Opacity
 /vis/geometry/set/colour Target 0 1 1 .1 1   # depth R G B Opacity
 
 
@@ -94,7 +99,7 @@
 /vis/modeling/trajectories/drawByParticleID-0/set GenericIon blue
 #
 # To superimpose all of the events from a given run:
-/vis/scene/endOfEventAction accumulate
+/vis/scene/endOfEventAction accumulate -1
 #
 # Re-establish auto refreshing and verbosity:
 /vis/viewer/set/autoRefresh true
@@ -106,17 +111,25 @@
 # ADDED BY RYAN
 # place the isotopes in the middle of the target, at rest. 
 /gun/particle ion
-/gun/ion 95 241
-/process/had/rdm/nucleusLimits 241 241 95 95
+/gun/energy 0 MeV
+#/gun/ion 95 241 # Am-241
+#/gun/ion 94 238 # Pu-238
+/gun/ion 94 239 # Pu-239
+/gun/ion 94 240 # Pu-240
+/process/had/rdm/setPhotoEvaporationFile 92 235 UserEvapData_z92.a235
+#/gun/particle alpha
+#/gun/energy 5.24451 MeV
+
+/process/had/rdm/nucleusLimits 240 240 94 94
 #
 # Need to set file name and energy window.
 # /analysis/setFileName Am241
 # Need to set at least one hist to avoid seg fault (why?)
- /analysis/h1/set 6 100 0. 15. MeV
+ /analysis/h1/set 0 10 5. 6. MeV
 
 #
-/process/had/rdm/applyICM false
-/process/had/rdm/applyARM false
-/process/had/rdm/hlThreshold 1e-6 s
+/process/had/rdm/applyICM true
+/process/had/rdm/applyARM true
+/process/had/rdm/hlThreshold 1 s
 
-# /run/beamOn 10
+/run/beamOn 100

@@ -223,8 +223,8 @@ G4VPhysicalVolume* DetectorConstruction::ConstructVolumes()
 
 void DetectorConstruction::PrintParameters()
 {
-    G4cout << "\n Target : Length = " << G4BestUnit(fTargetSide, "Length")
-        << " Radius = " << G4BestUnit(fTargetThickness, "Length")
+    G4cout << "\n Target : Side = " << G4BestUnit(fTargetSide, "Length")
+        << " Thickness = " << G4BestUnit(fTargetThickness, "Length")
         << " Material = " << fTargetMater->GetName();
     G4cout << "\n Detector : Length = " << G4BestUnit(fDetectorSide, "Length")
         << " Tickness = " << G4BestUnit(fDetectorThickness, "Length")
@@ -272,7 +272,7 @@ void DetectorConstruction::SetDetectorMaterial(G4String materialChoice)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void DetectorConstruction::SetTargetRadius(G4double value)
+void DetectorConstruction::SetTargetThickness(G4double value)
 {
     fTargetThickness = value;
     G4RunManager::GetRunManager()->ReinitializeGeometry();
@@ -280,7 +280,7 @@ void DetectorConstruction::SetTargetRadius(G4double value)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void DetectorConstruction::SetTargetLength(G4double value)
+void DetectorConstruction::SetTargetSide(G4double value)
 {
     fTargetSide = value;
     G4RunManager::GetRunManager()->ReinitializeGeometry();
@@ -296,7 +296,7 @@ void DetectorConstruction::SetDetectorThickness(G4double value)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void DetectorConstruction::SetDetectorLength(G4double value)
+void DetectorConstruction::SetDetectorSide(G4double value)
 {
     fDetectorSide = value;
     G4RunManager::GetRunManager()->ReinitializeGeometry();
@@ -304,14 +304,14 @@ void DetectorConstruction::SetDetectorLength(G4double value)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4double DetectorConstruction::GetTargetLength()
+G4double DetectorConstruction::GetTargetSide()
 {
     return fTargetSide;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4double DetectorConstruction::GetTargetRadius()
+G4double DetectorConstruction::GetTargetThickness()
 {
     return fTargetThickness;
 }
@@ -332,7 +332,7 @@ G4LogicalVolume* DetectorConstruction::GetLogicTarget()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4double DetectorConstruction::GetDetectorLength()
+G4double DetectorConstruction::GetDetectorSide()
 {
     return fDetectorSide;
 }

@@ -54,16 +54,18 @@ class DetectorMessenger: public G4UImessenger
     
   private:
   
+      //radius=thickness
+      //length=side
     DetectorConstruction*      fDetector;
     
     G4UIdirectory*             fRdecayDir;
     G4UIdirectory*             fDetDir;
     G4UIcmdWithAString*        fTargMatCmd;
     G4UIcmdWithAString*        fDetectMatCmd;
-    G4UIcmdWithADoubleAndUnit* fTargRadiusCmd;
+    G4UIcmdWithADoubleAndUnit* fTargThicknessCmd;
     G4UIcmdWithADoubleAndUnit* fDetectThicknessCmd;
-    G4UIcmdWithADoubleAndUnit* fTargLengthCmd;
-    G4UIcmdWithADoubleAndUnit* fDetectLengthCmd;    
+    G4UIcmdWithADoubleAndUnit* fTargSideCmd;
+    G4UIcmdWithADoubleAndUnit* fDetectSideCmd;    
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

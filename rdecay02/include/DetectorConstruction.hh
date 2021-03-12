@@ -54,11 +54,11 @@ class DetectorConstruction : public G4VUserDetectorConstruction
   
     virtual G4VPhysicalVolume* Construct();
     
-    void SetTargetLength (G4double value);
-    void SetTargetRadius (G4double value);
+    void SetTargetSide (G4double value);
+    void SetTargetThickness (G4double value);
     void SetTargetMaterial (G4String);
     
-    void SetDetectorLength(G4double value);           
+    void SetDetectorSide(G4double value);           
     void SetDetectorThickness(G4double value);  
     void SetDetectorMaterial(G4String);               
                    
@@ -66,12 +66,12 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     
   public:
       
-    G4double GetTargetLength();
-    G4double GetTargetRadius();
+    G4double GetTargetSide();
+    G4double GetTargetThickness();
     G4Material* GetTargetMaterial();       
     G4LogicalVolume* GetLogicTarget();
     
-    G4double GetDetectorLength();
+    G4double GetDetectorSide();
     G4double GetDetectorThickness();
     G4Material* GetDetectorMaterial();                 
     G4LogicalVolume* GetLogicDetector();      
