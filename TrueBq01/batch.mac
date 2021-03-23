@@ -12,10 +12,10 @@
 
 # DEFINE GEOMETRY PRIOR TO "/run/initialize"
 
-/rdecay02/det/setTargetThickness 30 um  
-/rdecay02/det/setTargetSide 1.8 mm
-/rdecay02/det/setDetectorThickness 275 um
-/rdecay02/det/setDetectorSide 10.55 mm
+/TrueBq01/det/setTargetThickness 30 um  
+/TrueBq01/det/setTargetSide 1.8 mm
+/TrueBq01/det/setDetectorThickness 275 um
+/TrueBq01/det/setDetectorSide 10.55 mm
 
 #
 /run/initialize
