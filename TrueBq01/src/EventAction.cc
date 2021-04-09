@@ -48,7 +48,8 @@
 EventAction::EventAction()
     :G4UserEventAction(),
     fEdep1(0.), fEdep2(0.), fWeight1(0.), fWeight2(0.),
-    fTime0(-1 * s)
+    fTime0(-1 * s),
+    fPrintModulo(1000000)//for the progress bar
 { }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -58,10 +59,13 @@ EventAction::~EventAction()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void EventAction::BeginOfEventAction(const G4Event*)
+void EventAction::BeginOfEventAction(const G4Event* event)
 {
     fEdep1 = fEdep2 = fWeight1 = fWeight2 = 0.;
     fTime0 = -1 * s;
+    fPrintModulo = 1000000; //number of beams
+
+    if (event->GetEventID()%100000== 0) G4cout <<event->GetEventID()/10000<<"%" << G4endl; //line printing the progress bar on the command line
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -158,6 +162,9 @@ void EventAction::EndOfEventAction(const G4Event*)
 
     run->AddEdep(fEdep1, fEdep2);
 }
+
+
+        
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

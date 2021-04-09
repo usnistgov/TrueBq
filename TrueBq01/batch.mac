@@ -12,7 +12,7 @@
 
 # DEFINE GEOMETRY PRIOR TO "/run/initialize"
 
-/TrueBq01/det/setTargetThickness 30 um  
+/TrueBq01/det/setTargetThickness 750 um  
 /TrueBq01/det/setTargetSide 1.8 mm
 /TrueBq01/det/setDetectorThickness 275 um
 /TrueBq01/det/setDetectorSide 10.55 mm
@@ -69,8 +69,12 @@
 #/analysis/h1/set 0 4000 5.5 5.65 MeV  	# Target histogram narrow
 #/run/beamOn 1000000
 
-/gun/ion 91 231 # Pa-231
-/process/had/rdm/nucleusLimits 231 231 91 91
-/analysis/setFileName Pa231
-/analysis/h1/set 0 4000 4.7 5.2 MeV  	# Target histogram narrow
+
+/gun/ion 94 241 # U-241
+/process/had/rdm/nucleusLimits 241 241 94 94
+/process/had/rdm/nucleusLimits 241 241 94 94
+/analysis/h1/set 0 10000 0 5150 keV
+/analysis/setFileName Pu-241
+
+#/run/printProgress <10%2>
 /run/beamOn 1000000

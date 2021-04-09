@@ -46,7 +46,7 @@ class EventAction : public G4UserEventAction
    ~EventAction();
 
   public:
-    virtual void BeginOfEventAction(const G4Event*);
+    virtual void BeginOfEventAction(const G4Event* event); //added event for the progress bar to function
     virtual void   EndOfEventAction(const G4Event*);
     
     void AddEdep (G4int iVol, G4double Edep, G4double time, G4double weight);
@@ -55,6 +55,7 @@ class EventAction : public G4UserEventAction
     G4double fEdep1,   fEdep2;
     G4double fWeight1, fWeight2;
     G4double fTime0;    
+    G4int fPrintModulo;//for the progress bar
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
