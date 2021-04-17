@@ -76,5 +76,5 @@
 /analysis/h1/set 0 10000 0 5150 keV
 /analysis/setFileName Pu-241
 
-#/run/printProgress <10%2>
+/run/printProgress 100000
 /run/beamOn 1000000
