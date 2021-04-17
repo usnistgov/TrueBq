@@ -76,6 +76,8 @@ void RunAction::BeginOfRunAction(const G4Run*)
   // save Rndm status
   G4RunManager::GetRunManager()->SetRandomNumberStore(false);
   if (isMaster) G4Random::showEngineStatus();
+
+  G4RunManager::GetRunManager()->GetPrintProgress();          //how to access the RunManager.
   
   // keep run condition
   if (fPrimary) { 

@@ -48,8 +48,8 @@
 EventAction::EventAction()
     :G4UserEventAction(),
     fEdep1(0.), fEdep2(0.), fWeight1(0.), fWeight2(0.),
-    fTime0(-1 * s),
-    fPrintModulo(1000000)//for the progress bar
+    fTime0(-1 * s) //time in radioactivity world
+    
 { }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -63,9 +63,23 @@ void EventAction::BeginOfEventAction(const G4Event* event)
 {
     fEdep1 = fEdep2 = fWeight1 = fWeight2 = 0.;
     fTime0 = -1 * s;
-    fPrintModulo = 1000000; //number of beams
+   
+    //to hold the number of beams that the user decided to run
+    G4int numberOfBeams = G4RunManager::GetRunManager()->GetNonConstCurrentRun()->GetNumberOfEventToBeProcessed();
+   
+    G4int previousProgress = (event->GetEventID() - 1) * 100 / (numberOfBeams - 1); //previous progress -1 because getEvenID goes from 0-9 and not from 1-10
+    G4int currentProgress = event->GetEventID() * 100 / (numberOfBeams - 1); //current progress
+   
+    //first case when there is no previous event- print line can be removed if user does not want to print 0%
+    if (event->GetEventID() == 0) {
+        G4cout << currentProgress << "%" << G4endl; //line printing the 0% progress bar
 
-    if (event->GetEventID()%100000== 0) G4cout <<event->GetEventID()/10000<<"%" << G4endl; //line printing the progress bar on the command line
+        //to add time, look up system commands, how to get the system time in c++-might be different in Geant
+    } 
+   // second case when there is a repetion due to the rounding
+    else if (currentProgress % 10 == 0 && currentProgress!=previousProgress) {
+       G4cout << currentProgress << "%" << G4endl; //line printing the progress bar on the command line
+    }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -161,6 +175,9 @@ void EventAction::EndOfEventAction(const G4Event*)
         G4RunManager::GetRunManager()->GetNonConstCurrentRun());
 
     run->AddEdep(fEdep1, fEdep2);
+
+    //number of event to run
+    //minimum amount from printing
 }
 
 

@@ -55,7 +55,7 @@ class EventAction : public G4UserEventAction
     G4double fEdep1,   fEdep2;
     G4double fWeight1, fWeight2;
     G4double fTime0;    
-    G4int fPrintModulo;//for the progress bar
+    
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
