@@ -36,6 +36,7 @@
 
 #include "G4UserEventAction.hh"
 #include "globals.hh"
+#include "G4Timer.hh" 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -55,6 +56,7 @@ class EventAction : public G4UserEventAction
     G4double fEdep1,   fEdep2;
     G4double fWeight1, fWeight2;
     G4double fTime0;    
+    G4Timer timer;
     
 };
 
