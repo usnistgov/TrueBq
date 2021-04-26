@@ -33,6 +33,7 @@
 
 #include "EventAction.hh"
 
+#include "iostream"
 #include "G4Timer.hh" 
 #include "Run.hh"
 #include "HistoManager.hh"
@@ -42,6 +43,8 @@
 #include "G4UnitsTable.hh"
 #include "Randomize.hh"
 #include "G4PhysicalConstants.hh"  // define pi, kBotzmann etc.
+
+using namespace std;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -65,48 +68,34 @@ void EventAction::BeginOfEventAction(const G4Event* event)
     fEdep1 = fEdep2 = fWeight1 = fWeight2 = 0.;
     fTime0 = -1 * s;
     timer.Start(); //initializing the G4Timer variable
-
-    
-      //  G4cout<< G4Timer::GetClockTime
    
-    //print the total number of beams that being run at the beginning.
-    //print the start time. 
-    //Ex: we are print 10000 beams at 14.23s
-    //start time at each 10% 
-    //print the radionuclide that being run at the beginning
+    //to hold the total number of beams that the user decided to run
+    G4float numberOfBeams = G4RunManager::GetRunManager()->GetNonConstCurrentRun()->GetNumberOfEventToBeProcessed()+ 0.0;
 
-    
- 
-
-
-   
-    //to hold the number of beams that the user decided to run
-    G4int numberOfBeams = G4RunManager::GetRunManager()->GetNonConstCurrentRun()->GetNumberOfEventToBeProcessed();
-
-    
-   
     G4int previousProgress = (event->GetEventID() - 1) * 100 / (numberOfBeams - 1); //previous progress -1 because getEvenID goes from 0-9 and not from 1-10
-    G4int currentProgress = event->GetEventID() * 100 / (numberOfBeams - 1); //current progress
+
+    G4int currentProgress = event->GetEventID() * 100 / (numberOfBeams - 1); //current progress percentage
    
     //first case when there is no previous event- print line can be removed if user does not want to print 0%
     if (event->GetEventID() == 0) {
-        G4cout << "Number of Beams: " << numberOfBeams << " beams" << G4endl; //printing the number of beams that are being run
-        G4cout << "Radionuclide: " << event->GetPrimaryVertex()->GetPrimary()->GetParticleDefinition()->GetParticleName() << G4endl;
         
-        G4cout << currentProgress << "% -- " ; //line printing the 0% progress bar
+        //making the output in scientific notation
+        G4cout.setf(ios::scientific);
+        G4cout << setprecision(0)<< "Number of Beams: " << numberOfBeams << " beams" << G4endl; //printing the total number of beams that are being run
+
+        //printing the name of the radionuclide that is being run
+        G4cout << "Radionuclide: " << event->GetPrimaryVertex()->GetPrimary()->GetParticleDefinition()->GetParticleName() << G4endl; 
+        
+        G4cout << currentProgress << "% -- " ; // printing progress bar at 0%
 
         G4cout << "Run Started on :" << timer.GetClockTime() << G4endl; // print the time when it started to run those beams
         
     } 
-   // second case when there is a repetion due to the rounding
+   // second case when there is a previous event 
+    // I also making sure that there is no repetion due to the rounding system
     else if (currentProgress % 10 == 0 && currentProgress!=previousProgress) {
        G4cout << currentProgress << "% --" ; //line printing the progress bar on the command line
-       G4cout << " Run Started on :" << timer.GetClockTime()<<G4endl;  //Bprint the time when it started to run those beams
-
-      // if (currentProgress == 100) {
-         //  timer.Stop();
-         //  G4cout << timer.GetRealElapsed() << G4endl; 
-      // }
+       G4cout << " Run Started on :" << timer.GetClockTime()<<G4endl;  //print the time when it started to run those number of beams
     }
 }
 
