@@ -1,0 +1,80 @@
+# Batch file for TrueBq01, as modified by AB and RF 2021
+#
+# Sets some default verbose
+# and initializes the graphic.
+#
+/control/verbose 2
+/run/verbose 2
+#/event/verbose 2
+#/tracking/verbose 2
+
+# ADDED BY RYAN: Define geometry before /run/initialize
+
+# DEFINE GEOMETRY PRIOR TO "/run/initialize"
+
+/TrueBq01/det/setTargetThickness 750 um  
+/TrueBq01/det/setTargetSide 1.8 mm
+/TrueBq01/det/setDetectorThickness 275 um
+/TrueBq01/det/setDetectorSide 10.55 mm
+
+#
+/run/initialize
+#
+
+
+# ADDED BY RYAN
+# place the isotopes in the middle of the target, at rest. 
+/gun/particle ion
+/gun/energy 0 MeV
+
+#/gun/ion 95 241 # Am-241
+#/gun/ion 94 238 # Pu-238
+/gun/ion 94 239 # Pu-239
+/process/had/rdm/nucleusLimits 239 239 94 94
+#/gun/ion 94 240 # Pu-240
+#/process/had/rdm/nucleusLimits 240 240 94 94
+
+/process/had/rdm/setPhotoEvaporationFile 92 235 UserEvapData_z92.a235
+
+#/gun/ion 92 235 1 13.034
+
+#/gun/particle alpha
+#/gun/energy 5.24451 MeV
+
+#
+# Need to set file name and energy window.
+/analysis/setFileName Pu239_100
+# Need to set at least one hist
+/analysis/h1/set 0 4000 5.1 5.3 MeV	# Target histogram narrow
+/analysis/h1/set 9 4000 0 6 MeV		# Target histogram wide
+#
+/process/had/rdm/applyICM true # internal electron conversion
+/process/had/rdm/applyARM true # atomic rearangment model. 
+#/process/had/rdm/hlThreshold 1 s # max level tau as non-metastable
+
+#/gun/ion 94 239 # Pu-239
+#/process/had/rdm/nucleusLimits 239 239 94 94
+#/process/had/rdm/setPhotoEvaporationFile 92 235 UserEvapData_z92.a235
+#/analysis/setFileName Pu239
+#/run/beamOn 1000000
+
+#/gun/ion 94 240 # Pu-240
+#/process/had/rdm/nucleusLimits 240 240 94 94
+#/analysis/setFileName Pu240
+#/run/beamOn 1000000
+
+#/gun/ion 95 241 # Am-241
+#/process/had/rdm/nucleusLimits 241 241 95 95
+#/analysis/setFileName Am241
+#/analysis/h1/set 0 4000 5.5 5.65 MeV  	# Target histogram narrow
+#/run/beamOn 1000000
+
+
+/gun/ion 94 241 # U-241
+/process/had/rdm/nucleusLimits 241 241 94 94
+/process/had/rdm/nucleusLimits 241 241 94 94
+/analysis/h1/set 0 10000 0 5150 keV
+/analysis/setFileName Pu-241
+
+#/run/printProgress <10%2>
+/run/beamOn 1000000
