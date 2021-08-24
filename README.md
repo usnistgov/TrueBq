@@ -1,5 +1,3 @@
-A sample README.md file
-
 # Project TrueBq 1.0
 ---
 ## The Goal of this project is
