@@ -1,18 +1,22 @@
 # TrueBq01
 TrueBq01 is a simple Geant4 simulation for cryogenic decay-energy spectrometery.
 It has been compiled using Geant4.10.6 on Windows using Microsoft Visual Studio Community 2019
-Version 16.8.3. TrueBq01 is based on the the rdecay02 example included with Geant4 distribtuions.
+Version 16.8.3. 
+
+TrueBq01 is based on the the rdecay02 example included with Geant4 distribtuions. See rdecay02 README file within file structure
 
 ## Installation Process
 1. Install Geant4
-2. Copy source code folder
+2. Download source code folder (TrueBq01)
 3. Follow Geant4 user code compilation instructions (I used Cmake version 3.19.2)
+4. Copy addtional User files from source code folder to installation folder
 
 ## Simulation information
 
 ### Geometry:
  1. Rectangular solid absorber (gold as default material) sitting on a 
  2. Rectangualr solid chip (silicon as default)
+ 
 Dimensions of both solids can be set by user (e.g. in batch.mac)
 
 ### Source:
