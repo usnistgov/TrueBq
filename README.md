@@ -38,7 +38,7 @@ For ascii file, header gives number of bins and energy range. The column 1 is en
 Ryan Fitzgerald
 ryan.fitzgerald@nist.gov
 
-## Acknowledgement for reused code if any
+## Acknowledgement for reused code
 See LICENCE.md
 
 Also see this from rdecay02 source file:
