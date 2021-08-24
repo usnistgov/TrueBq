@@ -43,56 +43,56 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction* Det)
 :G4UImessenger(), 
 
 //2 Dir field and 6commands line fields
- fDetector(Det), fRdecayDir(0), fDetDir(0),
- fTargMatCmd(0), fDetectMatCmd(0), fTargThicknessCmd(0),
- fDetectThicknessCmd(0), fTargSideCmd(0), fDetectSideCmd(0) 
+ fChip(Det), fRdecayDir(0), fDetDir(0),
+ fTargMatCmd(0), fChipMatCmd(0), fTargThicknessCmd(0),
+ fChipThicknessCmd(0), fTargSideCmd(0), fChipSideCmd(0) 
 { 
   fRdecayDir = new G4UIdirectory("/TrueBq01/");
   fRdecayDir->SetGuidance("commands specific to this example");
   
   G4bool broadcast = false;
   fDetDir = new G4UIdirectory("/TrueBq01/det/",broadcast);
-  fDetDir->SetGuidance("detector construction commands");
+  fDetDir->SetGuidance("Detector construction commands");
         
-  fTargMatCmd = new G4UIcmdWithAString("/TrueBq01/det/setTargetMate",this);
-  fTargMatCmd->SetGuidance("Select material of the target");
+  fTargMatCmd = new G4UIcmdWithAString("/TrueBq01/det/setAbsorberMate",this);
+  fTargMatCmd->SetGuidance("Select material of the absorber");
   fTargMatCmd->SetParameterName("choice",false);
   fTargMatCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
   
   fTargThicknessCmd =
-       new G4UIcmdWithADoubleAndUnit("/TrueBq01/det/setTargetThickness", this); //switched from setTargetRadius to setTargetThickness
-  fTargThicknessCmd->SetGuidance("Set the Target Thickness."); //switched radius to thickness
+       new G4UIcmdWithADoubleAndUnit("/TrueBq01/det/setAbsorberThickness", this); //switched from setAbsorberRadius to setAbsorberThickness
+  fTargThicknessCmd->SetGuidance("Set the Absorber Thickness."); //switched radius to thickness
   fTargThicknessCmd->SetUnitCategory("Length");
   fTargThicknessCmd->SetParameterName("choice",false);
   fTargThicknessCmd->AvailableForStates(G4State_PreInit);  
 
   
   fTargSideCmd =
-       new G4UIcmdWithADoubleAndUnit("/TrueBq01/det/setTargetSide", this); //switched to setTargetSide
-  fTargSideCmd->SetGuidance("Set the Target Side.");
+       new G4UIcmdWithADoubleAndUnit("/TrueBq01/det/setAbsorberSide", this); //switched to setAbsorberSide
+  fTargSideCmd->SetGuidance("Set the Absorber Side.");
   fTargSideCmd->SetUnitCategory("Length");
   fTargSideCmd->SetParameterName("choice",false);
   fTargSideCmd->AvailableForStates(G4State_PreInit);
   
 
-  fDetectMatCmd = new G4UIcmdWithAString("/TrueBq01/det/setDetectorMate",this);
-  fDetectMatCmd->SetGuidance("Select Material of the Detector.");
-  fDetectMatCmd->SetParameterName("choice",false);
-  fDetectMatCmd->AvailableForStates(G4State_PreInit,G4State_Idle);  
+  fChipMatCmd = new G4UIcmdWithAString("/TrueBq01/det/setChipMate",this);
+  fChipMatCmd->SetGuidance("Select Material of the Chip.");
+  fChipMatCmd->SetParameterName("choice",false);
+  fChipMatCmd->AvailableForStates(G4State_PreInit,G4State_Idle);  
 
-  fDetectThicknessCmd =
-       new G4UIcmdWithADoubleAndUnit("/TrueBq01/det/setDetectorThickness",this);
-  fDetectThicknessCmd->SetGuidance("Set the Detector Thickness.");
-  fDetectThicknessCmd->SetUnitCategory("Length");
-  fDetectThicknessCmd->SetParameterName("choice",false);
-  fDetectThicknessCmd->AvailableForStates(G4State_PreInit);
+  fChipThicknessCmd =
+       new G4UIcmdWithADoubleAndUnit("/TrueBq01/det/setChipThickness",this);
+  fChipThicknessCmd->SetGuidance("Set the Chip Thickness.");
+  fChipThicknessCmd->SetUnitCategory("Length");
+  fChipThicknessCmd->SetParameterName("choice",false);
+  fChipThicknessCmd->AvailableForStates(G4State_PreInit);
 
-  fDetectSideCmd =
-       new G4UIcmdWithADoubleAndUnit("/TrueBq01/det/setDetectorSide",this);//switch it to side
-  fDetectSideCmd->SetGuidance("Set the Detector Side.");
-  fDetectSideCmd->SetUnitCategory("Length");
-  fDetectSideCmd->SetParameterName("choice",false);
-  fDetectSideCmd->AvailableForStates(G4State_PreInit);
+  fChipSideCmd =
+       new G4UIcmdWithADoubleAndUnit("/TrueBq01/det/setChipSide",this);//switch it to side
+  fChipSideCmd->SetGuidance("Set the Chip Side.");
+  fChipSideCmd->SetUnitCategory("Length");
+  fChipSideCmd->SetParameterName("choice",false);
+  fChipSideCmd->AvailableForStates(G4State_PreInit);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -100,11 +100,11 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction* Det)
 DetectorMessenger::~DetectorMessenger()
 {
   delete fTargMatCmd;
-  delete fDetectMatCmd;
+  delete fChipMatCmd;
   delete fTargThicknessCmd;
-  delete fDetectThicknessCmd;
+  delete fChipThicknessCmd;
   delete fTargSideCmd;
-  delete fDetectSideCmd;
+  delete fChipSideCmd;
   delete fDetDir;
   delete fRdecayDir;  
 }
@@ -114,24 +114,24 @@ DetectorMessenger::~DetectorMessenger()
 void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
 { 
   if (command == fTargMatCmd )
-   { fDetector->SetTargetMaterial(newValue);}
+   { fChip->SetAbsorberMaterial(newValue);}
    
   if (command == fTargSideCmd ) 
-    { fDetector->SetTargetSide(fTargSideCmd->GetNewDoubleValue(newValue));}
+    { fChip->SetAbsorberSide(fTargSideCmd->GetNewDoubleValue(newValue));}
     
   if (command == fTargThicknessCmd ) 
-    {fDetector->SetTargetThickness(fTargSideCmd->GetNewDoubleValue(newValue));}
+    {fChip->SetAbsorberThickness(fTargSideCmd->GetNewDoubleValue(newValue));}
     
-  if (command == fDetectMatCmd )
-    { fDetector->SetDetectorMaterial(newValue);}
+  if (command == fChipMatCmd )
+    { fChip->SetDetectorMaterial(newValue);}
     
-  if (command == fDetectSideCmd ) 
-    {fDetector->SetDetectorSide(
-                     fDetectSideCmd->GetNewDoubleValue(newValue));}
+  if (command == fChipSideCmd ) 
+    {fChip->SetDetectorSide(
+                     fChipSideCmd->GetNewDoubleValue(newValue));}
 
-  if (command == fDetectThicknessCmd ) 
-    {fDetector->SetDetectorThickness(
-                     fDetectThicknessCmd->GetNewDoubleValue(newValue));}      
+  if (command == fChipThicknessCmd ) 
+    {fChip->SetDetectorThickness(
+                     fChipThicknessCmd->GetNewDoubleValue(newValue));}      
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

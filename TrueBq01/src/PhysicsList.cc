@@ -149,7 +149,7 @@ void PhysicsList::ConstructParticle()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PhysicsList::SetCuts() // set general cut value (range of 2ndary particle to produce). Then set shorter cut (lower E) for Target
+void PhysicsList::SetCuts() // set general cut value (range of 2ndary particle to produce). Then set shorter cut (lower E) for Absorber
 // in Gold, 5 um -> 53 keV e' and 5.2 keV gamma
 // in Si, 1 mm -> 548 keV e' and 7 keV gamma
 // To do: Add these options to messenger
@@ -159,11 +159,11 @@ void PhysicsList::SetCuts() // set general cut value (range of 2ndary particle t
 	SetCutValue(1 * mm, "e+");
 	SetCutValue(1 * mm, "gamma");
 
-	// Production thresholds for detector regions
+	// Production thresholds for Detector regions
 	G4Region* region;
 	G4String regName;
 	G4ProductionCuts* cuts;
-	regName = "Target";
+	regName = "Absorber";
 	region = G4RegionStore::GetInstance()->GetRegion(regName);
 	cuts = new G4ProductionCuts;
 	cuts->SetProductionCut(5 * um); // same cuts for gamma, proton, e- and e+

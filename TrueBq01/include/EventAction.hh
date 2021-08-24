@@ -53,6 +53,7 @@ class EventAction : public G4UserEventAction
     void AddEdep (G4int iVol, G4double Edep, G4double time, G4double weight);
                 
   private:
+      G4double dtReal; // real clock time elapsed for progress bar
     G4double fEdep1,   fEdep2;
     G4double fWeight1, fWeight2;
     G4double fTime0; 

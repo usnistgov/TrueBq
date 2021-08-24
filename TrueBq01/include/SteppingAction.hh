@@ -50,7 +50,7 @@ class SteppingAction : public G4UserSteppingAction
     virtual void UserSteppingAction(const G4Step*);
     
   private:
-    DetectorConstruction* fDetector;  
+    DetectorConstruction* fChip;  
     EventAction* fEventAction;    
 };
 

@@ -50,7 +50,7 @@ class TrackingAction : public G4UserTrackingAction {
     virtual void PostUserTrackingAction(const G4Track*);
     
   private:
-    DetectorConstruction* fDetector;
+    DetectorConstruction* fChip;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

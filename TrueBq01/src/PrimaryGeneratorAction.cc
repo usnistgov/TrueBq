@@ -112,7 +112,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     // SET POSITION
     fParticleGun->SetParticlePosition(G4ThreeVector(0, 0, 0));
 
-    bool distributed = FALSE; // Distributed through target? (If false, then point source in center)
+    bool distributed = FALSE; // Distributed through absorber? (If false, then point source in center)
     if (distributed)
     {
         fParticleGun->SetParticlePosition(G4ThreeVector(G4RandFlat::shoot(-15.0 * um, +15.0 * um), G4RandFlat::shoot(-150.0 * um, +150.0 * um), G4RandFlat::shoot(-15.0 * um, +15.0 * um)));

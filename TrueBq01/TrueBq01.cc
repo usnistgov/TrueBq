@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-/// \file rdecay02.cc
+/// based on \file rdecay02.cc
 /// \brief Main program of the radioactivedecay/rdecay02 example
 //
 //

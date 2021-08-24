@@ -53,8 +53,9 @@ EventAction::EventAction()
 
 {
     myTimer = new G4Timer(); // create a timer to track wall clock time for the program
-    myTimer->Start();
-    
+    myTimer->Start(); // note, timer must be stopped before reading it. restarting rezeroes.
+    dtReal = 0.0; // for elapsed time
+ 
   }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -98,35 +99,36 @@ void EventAction::BeginOfEventAction(const G4Event* event)
         numberOfBeams = G4RunManager::GetRunManager()->GetNonConstCurrentRun()->GetNumberOfEventToBeProcessed();
         G4cout << "Primary: " << event->GetPrimaryVertex()->GetPrimary()->GetParticleDefinition()->GetParticleName() << G4endl;
         
-        time_t now = time(NULL); 
-        struct tm now_tm = *gmtime(&now); // get time (getlocaltime giving wrong hour, so just using GMT)
 
-        mktime(&now_tm);      // normalize it
-        char buffer[80];
-        strftime(buffer, 80, "%x %R", &now_tm); // print it
+        myTimer->Stop();
+        dtReal = myTimer->GetRealElapsed();
+        G4String timestr;
+        timestr = myTimer->GetClockTime();
+        if (!timestr.empty()) {
+            timestr.resize(timestr.size() - 1); // remove end-of-line char
+        }
+        G4cout << "Begin beamOn: " << numberOfBeams << "\tat " << timestr << " UTC"<< G4endl;
+        G4cout << "Progress\tTime (UTC)\t\t\tdt\t\tt so far\tt remaining" << G4endl;
 
-        G4cout << "Begin beamOn: " << numberOfBeams << "      begin at " <<  buffer << " UTC \n"<< G4endl;
-        G4cout << "Prog\tDT\t\tT_tot\t\tT_rem\t\tTend (UTC)" << G4endl;
+        myTimer->Start();
 
     }
 
-    // second case when there is a repetion due to the rounding
+    // periodic status printing. The "&&" takes care of rounding issues
     else if ((currentProgress % 10 == 0 || currentProgress ==1 || currentProgress == 5) && currentProgress != previousProgress) 
     {
         G4cout << currentProgress << "%\t" ; //line printing the progress bar on the command line
             myTimer->Stop();
             G4double dt = myTimer->GetRealElapsed();
+            G4String timestr;
+            timestr = myTimer->GetClockTime();
+            if (!timestr.empty()) {
+                timestr.resize(timestr.size() - 1); // remove end-of-line char
+            }
             timeSoFar += dt;
             G4double dt_remaining = dt * (100 - 1.0*currentProgress) / (currentProgress*1.0 - previousProgress*1.0);
           
-            time_t now = time(NULL);
-            struct tm now_tm = *gmtime(&now);
-            struct tm then_tm = now_tm;
-            then_tm.tm_sec += dt_remaining;   // add 50 seconds to the time
-            mktime(&then_tm);      // normalize it
-            char buffer[80];
-            strftime(buffer, 80, "%x %R", &then_tm);
-            G4cout << niceTime(int(dt)) << "\t" << niceTime(int(timeSoFar)) << "\t"<<niceTime(int(dt_remaining))<< "\t"<< buffer << G4endl;
+            G4cout << currentProgress << "\t" << timestr << "\t" <<niceTime(dt) << "\t" << niceTime(timeSoFar) << "\t" << niceTime(dt_remaining) << G4endl;
             myTimer->Start();
     }
 }
@@ -161,7 +163,7 @@ void EventAction::EndOfEventAction(const G4Event*)
     G4double detrho = 19300. * kg / m3; // density of gold
     G4double detvol = pi * pow(2, 2 * mm) * 0.2 * mm; // 2 mm radius x 0.2 mm height gold
     detvol = 1.8 * mm * 1.8 * mm * 2.0 * mm; // Hoover 2015 geometry: 1.8 * mm * 3.6 * mm * 0.015 * mm;
-    G4double detmass = detrho * detvol; // mass of target for Resolution formula
+    G4double detmass = detrho * detvol; // mass of absorber for Resolution formula
 
     G4double Resolution = sqrt(k_Boltzmann * Cv * detmass * Temp * Temp) * 7; // 
 
@@ -192,11 +194,11 @@ void EventAction::EndOfEventAction(const G4Event*)
 
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
-    // sum energies of the target and detector
+    // sum energies of the absorber and chip
     G4double Etot = fEdep1 + fEdep2;
     G4double Wtot = (fWeight1 + fWeight2) / Etot;
 
-    // pulse height in target
+    // pulse height in absorber
     //
     if (fEdep1 > 0.) {
         fWeight1 /= fEdep1;
@@ -204,7 +206,7 @@ void EventAction::EndOfEventAction(const G4Event*)
         analysisManager->FillH1(9, fEdep1, fWeight1);
     }
 
-    // pulse height in detector
+    // pulse height in chip
     //   
     if (fEdep2 > 0.) {
         fWeight2 /= fEdep2;
@@ -215,7 +217,7 @@ void EventAction::EndOfEventAction(const G4Event*)
     //
     analysisManager->FillH1(2, Etot, Wtot);
 
-    // threshold in target and detector        
+    // threshold in absorber and chip        
     const G4double Threshold1(10 * keV), Threshold2(10 * keV);
 
     //coincidence, anti-coincidences 

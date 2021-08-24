@@ -58,40 +58,40 @@
 
 DetectorConstruction::DetectorConstruction()
     :G4VUserDetectorConstruction(),
-    fTargetMater(0), fLogicTarget(0),
-    fDetectorMater(0), fLogicDetector(0),
+    fAbsorberMater(0), fLogicAbsorber(0),
+    fChipMater(0), fLogicDetector(0),
     fWorldMater(0), fPhysiWorld(0),
-    fDetectorMessenger(0)
+    fChipMessenger(0)
 {
     //Change this to side for a square
     //replace g4tubs to g4boxes
     //make side and thickness 
 
-    //Target side and thickness (small square that will be on top)
-    fTargetSide = 1.5 * mm; //make it the side
-    fTargetThickness = 20 * um; //make it thickness of the small square
+    //Absorber side and thickness (small square that will be on top)
+    fAbsorberSide = 1.5 * mm; //make it the side
+    fAbsorberThickness = 20 * um; //make it thickness of the small square
 
     //Detector side and thickness measures(Big square that will be down
-    fDetectorSide = 5 * mm;
-    fDetectorThickness = 0.8 * mm;
+    fChipSide = 5 * mm;
+    fChipThickness = 0.8 * mm;
 
 
 
     //A way to make the word bigger
-    fWorldSide = std::max(fTargetSide, fDetectorSide);
-    fWorldThickness = fTargetThickness + fDetectorThickness; //Should change the name of this variable
+    fWorldSide = std::max(fAbsorberSide, fChipSide);
+    fWorldThickness = fAbsorberThickness + fChipThickness; //Should change the name of this variable
 
 
     DefineMaterials();
 
-    fDetectorMessenger = new DetectorMessenger(this);
+    fChipMessenger = new DetectorMessenger(this);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 DetectorConstruction::~DetectorConstruction()
 {
-    delete fDetectorMessenger;
+    delete fChipMessenger;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -128,10 +128,10 @@ void DetectorConstruction::DefineMaterials()
     // To do: Add thin layer of air for backscatter
     //
 
-    fTargetMater = man->FindOrBuildMaterial("G4_Au"); // changed from "G4_CESIUM_IODIDE" by Ryan 24Feb2021
+    fAbsorberMater = man->FindOrBuildMaterial("G4_Au"); // changed from "G4_CESIUM_IODIDE" by Ryan 24Feb2021
 
 
-    fDetectorMater = man->FindOrBuildMaterial("G4_Si"); // changed from Germanium by Ryan 24Feb2021
+    fChipMater = man->FindOrBuildMaterial("G4_Si"); // changed from Germanium by Ryan 24Feb2021
 
     // new G4Material("Germanium", 32, 72.61*g/mole, 5.323*g/cm3);
 
@@ -151,8 +151,8 @@ G4VPhysicalVolume* DetectorConstruction::ConstructVolumes()
     // World
     //
     // (re) compute World dimensions if necessary
-    fWorldSide = std::max(fTargetSide, fDetectorSide);
-    fWorldThickness = fTargetThickness + 2 * fDetectorThickness;
+    fWorldSide = std::max(fAbsorberSide, fChipSide);
+    fWorldThickness = fAbsorberThickness + 2 * fChipThickness;
 
     //Replace by G4box for the square remove
     G4Box*
@@ -172,43 +172,43 @@ G4VPhysicalVolume* DetectorConstruction::ConstructVolumes()
         false,                      //no boolean operation
         0);                         //copy number
 
-// Target
+// Absorber
 //
     G4Box*
-        sTarget = new G4Box("Target",                                   //name
-            0.5 * fTargetSide, 0.5 * fTargetSide, 0.5 * fTargetThickness); //dimensions
+        sAbsorber = new G4Box("Absorber",                                   //name
+            0.5 * fAbsorberSide, 0.5 * fAbsorberSide, 0.5 * fAbsorberThickness); //dimensions
 
 
-    fLogicTarget = new G4LogicalVolume(sTarget,           //shape
-        fTargetMater,              //material
-        "Target");                 //name
+    fLogicAbsorber = new G4LogicalVolume(sAbsorber,           //shape
+        fAbsorberMater,              //material
+        "Absorber");                 //name
 
-//Placement of the target in the word
+//Placement of the absorber in the word
 //Changing the position of the small square
     new G4PVPlacement(0,                         //no rotation
         G4ThreeVector(0, 0, 0),             //at (0,0, ( 1/2small square thickness+ 1/2big square thickness) 
-        fLogicTarget,                //logical volume
-        "Target",                    //name
+        fLogicAbsorber,                //logical volume
+        "Absorber",                    //name
         lWorld,                      //mother  volume
         false,                       //no boolean operation
         0);                          //copy number
 
-    G4Region* emTarget = new G4Region("Target"); // create region that is the same as logical volume. Used for setting special production cuts
-    fLogicTarget->SetRegion(emTarget);
-    emTarget->AddRootLogicalVolume(fLogicTarget);
+    G4Region* emAbsorber = new G4Region("Absorber"); // create region that is the same as logical volume. Used for setting special production cuts
+    fLogicAbsorber->SetRegion(emAbsorber);
+    emAbsorber->AddRootLogicalVolume(fLogicAbsorber);
     // Detector
     //
     G4Box*
         sDetector = new G4Box("Detector",
-            0.5 * fDetectorSide, 0.5 * fDetectorSide, 0.5 * fDetectorThickness);
+            0.5 * fChipSide, 0.5 * fChipSide, 0.5 * fChipThickness);
 
 
     fLogicDetector = new G4LogicalVolume(sDetector,       //shape
-        fDetectorMater,            //material
+        fChipMater,            //material
         "Detector");               //name
 
     new G4PVPlacement(0,                         //no rotation
-        G4ThreeVector(0, 0, ((-0.5 * fTargetThickness) - 0.5 * fDetectorThickness)),             //at (0,0,0)
+        G4ThreeVector(0, 0, ((-0.5 * fAbsorberThickness) - 0.5 * fChipThickness)),             //at (0,0,0)
         fLogicDetector,              //logical volume
         "Detector",                  //name
         lWorld,                      //mother  volume
@@ -227,30 +227,30 @@ G4VPhysicalVolume* DetectorConstruction::ConstructVolumes()
 
 void DetectorConstruction::PrintParameters()
 {
-    G4cout << "\n Target : Side = " << G4BestUnit(fTargetSide, "Length")
-        << " Thickness = " << G4BestUnit(fTargetThickness, "Length")
-        << " Material = " << fTargetMater->GetName();
-    G4cout << "\n Detector : Length = " << G4BestUnit(fDetectorSide, "Length")
-        << " Tickness = " << G4BestUnit(fDetectorThickness, "Length")
-        << " Material = " << fDetectorMater->GetName() << G4endl;
-    G4cout << "\n" << fTargetMater << "\n" << fDetectorMater << G4endl;
+    G4cout << "\n Absorber : Side = " << G4BestUnit(fAbsorberSide, "Length")
+        << " Thickness = " << G4BestUnit(fAbsorberThickness, "Length")
+        << " Material = " << fAbsorberMater->GetName();
+    G4cout << "\n Detector : Length = " << G4BestUnit(fChipSide, "Length")
+        << " Tickness = " << G4BestUnit(fChipThickness, "Length")
+        << " Material = " << fChipMater->GetName() << G4endl;
+    G4cout << "\n" << fAbsorberMater << "\n" << fChipMater << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void DetectorConstruction::SetTargetMaterial(G4String materialChoice)
+void DetectorConstruction::SetAbsorberMaterial(G4String materialChoice)
 {
     // search the material by its name
     G4Material* pttoMaterial =
         G4NistManager::Instance()->FindOrBuildMaterial(materialChoice);
 
     if (pttoMaterial) {
-        fTargetMater = pttoMaterial;
-        if (fLogicTarget) { fLogicTarget->SetMaterial(fTargetMater); }
+        fAbsorberMater = pttoMaterial;
+        if (fLogicAbsorber) { fLogicAbsorber->SetMaterial(fAbsorberMater); }
         G4RunManager::GetRunManager()->PhysicsHasBeenModified();
     }
     else {
-        G4cout << "\n--> warning from DetectorConstruction::SetTargetMaterial : "
+        G4cout << "\n--> warning from DetectorConstruction::SetAbsorberMaterial : "
             << materialChoice << " not found" << G4endl;
     }
 }
@@ -264,8 +264,8 @@ void DetectorConstruction::SetDetectorMaterial(G4String materialChoice)
         G4NistManager::Instance()->FindOrBuildMaterial(materialChoice);
 
     if (pttoMaterial) {
-        fDetectorMater = pttoMaterial;
-        if (fLogicDetector) { fLogicDetector->SetMaterial(fDetectorMater); }
+        fChipMater = pttoMaterial;
+        if (fLogicDetector) { fLogicDetector->SetMaterial(fChipMater); }
         G4RunManager::GetRunManager()->PhysicsHasBeenModified();
     }
     else {
@@ -276,17 +276,17 @@ void DetectorConstruction::SetDetectorMaterial(G4String materialChoice)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void DetectorConstruction::SetTargetThickness(G4double value)
+void DetectorConstruction::SetAbsorberThickness(G4double value)
 {
-    fTargetThickness = value;
+    fAbsorberThickness = value;
     G4RunManager::GetRunManager()->ReinitializeGeometry();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void DetectorConstruction::SetTargetSide(G4double value)
+void DetectorConstruction::SetAbsorberSide(G4double value)
 {
-    fTargetSide = value;
+    fAbsorberSide = value;
     G4RunManager::GetRunManager()->ReinitializeGeometry();
 }
 
@@ -294,7 +294,7 @@ void DetectorConstruction::SetTargetSide(G4double value)
 
 void DetectorConstruction::SetDetectorThickness(G4double value)
 {
-    fDetectorThickness = value;
+    fChipThickness = value;
     G4RunManager::GetRunManager()->ReinitializeGeometry();
 }
 
@@ -302,57 +302,57 @@ void DetectorConstruction::SetDetectorThickness(G4double value)
 
 void DetectorConstruction::SetDetectorSide(G4double value)
 {
-    fDetectorSide = value;
+    fChipSide = value;
     G4RunManager::GetRunManager()->ReinitializeGeometry();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4double DetectorConstruction::GetTargetSide()
+G4double DetectorConstruction::GetAbsorberSide()
 {
-    return fTargetSide;
+    return fAbsorberSide;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4double DetectorConstruction::GetTargetThickness()
+G4double DetectorConstruction::GetAbsorberThickness()
 {
-    return fTargetThickness;
+    return fAbsorberThickness;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4Material* DetectorConstruction::GetTargetMaterial()
+G4Material* DetectorConstruction::GetAbsorberMaterial()
 {
-    return fTargetMater;
+    return fAbsorberMater;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4LogicalVolume* DetectorConstruction::GetLogicTarget()
+G4LogicalVolume* DetectorConstruction::GetLogicAbsorber()
 {
-    return fLogicTarget;
+    return fLogicAbsorber;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 G4double DetectorConstruction::GetDetectorSide()
 {
-    return fDetectorSide;
+    return fChipSide;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 G4double DetectorConstruction::GetDetectorThickness()
 {
-    return fDetectorThickness;
+    return fChipThickness;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 G4Material* DetectorConstruction::GetDetectorMaterial()
 {
-    return fDetectorMater;
+    return fChipMater;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -45,9 +45,9 @@
 
 Run::Run(DetectorConstruction* det)
 : G4Run(),
-  fDetector(det), fParticle(0), fEkin(0.)
+  fChip(det), fParticle(0), fEkin(0.)
 {
-  fEdepTarget = fEdepTarget2 = 0.;
+  fEdepAbsorber = fEdepAbsorber2 = 0.;
   fEdepDetect = fEdepDetect2 = 0.;  
 }
 
@@ -133,11 +133,11 @@ void Run::ParticleCount(G4String name, G4double Ekin, G4int iVol)
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 //Important function
-//Check the energy deposited in the main and the envelop detector
+//Check the energy deposited in the main and the envelop Detector
 void Run::AddEdep(G4double edep1, G4double edep2)
 { 
-  fEdepTarget  += edep1;
-  fEdepTarget2 += edep1*edep1;
+  fEdepAbsorber  += edep1;
+  fEdepAbsorber2 += edep1*edep1;
   fEdepDetect  += edep2;
   fEdepDetect2 += edep2*edep2;  
 }
@@ -155,12 +155,12 @@ void Run::Merge(const G4Run* run)
   
   // accumulate sums
   //
-  fEdepTarget   += localRun->fEdepTarget;  
-  fEdepTarget2  += localRun->fEdepTarget2;
+  fEdepAbsorber   += localRun->fEdepAbsorber;  
+  fEdepAbsorber2  += localRun->fEdepAbsorber2;
   fEdepDetect   += localRun->fEdepDetect;  
   fEdepDetect2  += localRun->fEdepDetect2;  
       
-  //map: processes count in target
+  //map: processes count in absorber
   
   std::map<G4String,G4int>::const_iterator itp1;
   for ( itp1 = localRun->fProcCounter1.begin();
@@ -176,7 +176,7 @@ void Run::Merge(const G4Run* run)
     }  
   }
   
-  //map: processes count in detector
+  //map: processes count in Detector
   
   std::map<G4String,G4int>::const_iterator itp2;
   for ( itp2 = localRun->fProcCounter2.begin();
@@ -192,7 +192,7 @@ void Run::Merge(const G4Run* run)
     }  
   }
     
-  //map: created particles in target   
+  //map: created particles in absorber   
   std::map<G4String,ParticleData>::const_iterator itc;
   for (itc = localRun->fParticleDataMap1.begin(); 
        itc != localRun->fParticleDataMap1.end(); ++itc) {
@@ -217,7 +217,7 @@ void Run::Merge(const G4Run* run)
     }   
   }
   
-  //map: created particle in detector       
+  //map: created particle in Detector       
   std::map<G4String,ParticleData>::const_iterator itn;
   for (itn = localRun->fParticleDataMap2.begin(); 
        itn != localRun->fParticleDataMap2.end(); ++itn) {
@@ -258,49 +258,49 @@ void Run::EndOfRun()
   G4cout << "\n The run is " << numberOfEvent << " "<< Particle << " of "
          << G4BestUnit(fEkin,"Energy") << " through : ";
           
-  G4cout << "\n Target   : Length = " 
-         << G4BestUnit(fDetector->GetTargetSide(),"Length")
+  G4cout << "\n Absorber   : Length = " 
+         << G4BestUnit(fChip->GetAbsorberSide(),"Length")
          << " Radius    = " 
-         << G4BestUnit(fDetector->GetTargetThickness(),"Length")  
+         << G4BestUnit(fChip->GetAbsorberThickness(),"Length")  
          << " Material = " 
-         << fDetector->GetTargetMaterial()->GetName();
+         << fChip->GetAbsorberMaterial()->GetName();
   G4cout << "\n Detector : Length = " 
-         << G4BestUnit(fDetector->GetDetectorSide(),"Length")
+         << G4BestUnit(fChip->GetDetectorSide(),"Length")
          << " Thickness = " 
-         << G4BestUnit(fDetector->GetDetectorThickness(),"Length")  
+         << G4BestUnit(fChip->GetDetectorThickness(),"Length")  
          << " Material = " 
-         << fDetector->GetDetectorMaterial()->GetName() << G4endl;
+         << fChip->GetDetectorMaterial()->GetName() << G4endl;
 
   if (numberOfEvent == 0) { G4cout.precision(dfprec);   return;}
   
-  // compute mean Energy deposited and rms in target
+  // compute mean Energy deposited and rms in absorber
   //
   G4int TotNbofEvents = numberOfEvent;
-  fEdepTarget /= TotNbofEvents; fEdepTarget2 /= TotNbofEvents;
-  G4double rmsEdep = fEdepTarget2 - fEdepTarget*fEdepTarget;
+  fEdepAbsorber /= TotNbofEvents; fEdepAbsorber2 /= TotNbofEvents;
+  G4double rmsEdep = fEdepAbsorber2 - fEdepAbsorber*fEdepAbsorber;
   if (rmsEdep>0.) rmsEdep = std::sqrt(rmsEdep);
   else            rmsEdep = 0.;
   
- /* G4cout << "\n Mean energy deposit in target,   in time window = "
-         << G4BestUnit(fEdepTarget,"Energy") << ";  rms = "
+ /* G4cout << "\n Mean energy deposit in absorber,   in time window = "
+         << G4BestUnit(fEdepAbsorber,"Energy") << ";  rms = "
          << G4BestUnit(rmsEdep,    "Energy") 
          << G4endl;*/
 
-  // compute mean Energy deposited and rms in detector
+  // compute mean Energy deposited and rms in Detector
   //
   fEdepDetect /= TotNbofEvents; fEdepDetect2 /= TotNbofEvents;
   rmsEdep = fEdepDetect2 - fEdepDetect*fEdepDetect;
   if (rmsEdep>0.) rmsEdep = std::sqrt(rmsEdep);
   else            rmsEdep = 0.;
   
-  /*G4cout << " Mean energy deposit in detector, in time window = "
+  /*G4cout << " Mean energy deposit in Detector, in time window = "
          << G4BestUnit(fEdepDetect,"Energy") << ";  rms = "
          << G4BestUnit(rmsEdep,    "Energy") 
          << G4endl;*/
 
-  // frequency of processes in target
+  // frequency of processes in absorber
   //
- /* G4cout << "\n Process calls frequency in target :" << G4endl;
+ /* G4cout << "\n Process calls frequency in absorber :" << G4endl;
   G4int index = 0;
   std::map<G4String,G4int>::iterator it1;    
   for (it1 = fProcCounter1.begin(); it1 != fProcCounter1.end(); it1++) {
@@ -312,9 +312,9 @@ void Run::EndOfRun()
   }
   G4cout << G4endl;*/
   
-  // frequency of processes in detector
+  // frequency of processes in Detector
   //
- // G4cout << "\n Process calls frequency in detector:" << G4endl;
+ // G4cout << "\n Process calls frequency in Detector:" << G4endl;
  // index = 0;
  // std::map<G4String,G4int>::iterator it2;    
  // for (it2 = fProcCounter2.begin(); it2 != fProcCounter2.end(); it2++) {
@@ -326,9 +326,9 @@ void Run::EndOfRun()
  // }
  // G4cout << G4endl;
  //   
- // // particles count in target
+ // // particles count in absorber
  // //
- // G4cout << "\n List of generated particles in target:" << G4endl;
+ // G4cout << "\n List of generated particles in absorber:" << G4endl;
  //    
  // std::map<G4String,ParticleData>::iterator itc;               
  // for (itc = fParticleDataMap1.begin(); itc != fParticleDataMap1.end(); itc++) {
@@ -346,9 +346,9 @@ void Run::EndOfRun()
  //          << ")" << G4endl;           
  //}
 
- //// particles count in detector
+ //// particles count in Detector
  ////
- //G4cout << "\n List of generated particles in detector:" << G4endl;
+ //G4cout << "\n List of generated particles in Detector:" << G4endl;
  //    
  //std::map<G4String,ParticleData>::iterator itn;               
  //for (itn = fParticleDataMap2.begin(); itn != fParticleDataMap2.end(); itn++) { 

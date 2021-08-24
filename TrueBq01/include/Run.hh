@@ -72,11 +72,11 @@ class Run : public G4Run
     };
      
   private:
-    DetectorConstruction* fDetector;
+    DetectorConstruction* fChip;
     G4ParticleDefinition* fParticle;
     G4double              fEkin;
     
-    G4double fEdepTarget, fEdepTarget2;
+    G4double fEdepAbsorber, fEdepAbsorber2;
     G4double fEdepDetect, fEdepDetect2;    
      
     std::map<G4String,G4int>        fProcCounter1;

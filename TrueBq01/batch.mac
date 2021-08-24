@@ -12,10 +12,10 @@
 
 # DEFINE GEOMETRY PRIOR TO "/run/initialize"
 
-/TrueBq01/det/setTargetThickness 300 um  
-/TrueBq01/det/setTargetSide 1.8 mm
-/TrueBq01/det/setDetectorThickness 275 um
-/TrueBq01/det/setDetectorSide 10.55 mm
+/TrueBq01/det/setAbsorberThickness 300 um  
+/TrueBq01/det/setAbsorberSide 1.8 mm
+/TrueBq01/det/setChipThickness 275 um
+/TrueBq01/det/setChipSide 10.55 mm
 
 #
 /run/initialize
@@ -23,7 +23,7 @@
 
 
 # ADDED BY RYAN
-# place the isotopes in the middle of the target, at rest. 
+# place the isotopes in the middle of the absorber, at rest. 
 /gun/particle ion
 /gun/energy 0 MeV
 
@@ -66,7 +66,7 @@
 /process/had/rdm/nucleusLimits 241 241 95 95
 /analysis/setFileName Am241
 /analysis/h1/set 0 4000 5.05 5.650 MeV 	# Target histogram narrow
-/run/beamOn 1000
+/run/beamOn 100000
 
 #/gun/ion 95 243 # Am-243
 #/process/had/rdm/nucleusLimits 243 243 95 95

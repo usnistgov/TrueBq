@@ -54,9 +54,9 @@ class DetectorConstruction : public G4VUserDetectorConstruction
   
     virtual G4VPhysicalVolume* Construct();
     
-    void SetTargetSide (G4double value);
-    void SetTargetThickness (G4double value);
-    void SetTargetMaterial (G4String);
+    void SetAbsorberSide (G4double value);
+    void SetAbsorberThickness (G4double value);
+    void SetAbsorberMaterial (G4String);
     
     void SetDetectorSide(G4double value);           
     void SetDetectorThickness(G4double value);  
@@ -66,10 +66,10 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     
   public:
       
-    G4double GetTargetSide();
-    G4double GetTargetThickness();
-    G4Material* GetTargetMaterial();       
-    G4LogicalVolume* GetLogicTarget();
+    G4double GetAbsorberSide();
+    G4double GetAbsorberThickness();
+    G4Material* GetAbsorberMaterial();       
+    G4LogicalVolume* GetLogicAbsorber();
     
     G4double GetDetectorSide();
     G4double GetDetectorThickness();
@@ -78,14 +78,14 @@ class DetectorConstruction : public G4VUserDetectorConstruction
                        
   private:
   
-    G4double           fTargetSide; 
-    G4double           fTargetThickness;
-    G4Material*        fTargetMater;
-    G4LogicalVolume*   fLogicTarget;
+    G4double           fAbsorberSide; 
+    G4double           fAbsorberThickness;
+    G4Material*        fAbsorberMater;
+    G4LogicalVolume*   fLogicAbsorber;
                  
-    G4double           fDetectorSide;
-    G4double           fDetectorThickness;
-    G4Material*        fDetectorMater;
+    G4double           fChipSide;
+    G4double           fChipThickness;
+    G4Material*        fChipMater;
     G4LogicalVolume*   fLogicDetector;
                
     G4double           fWorldSide;
@@ -93,7 +93,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     G4Material*        fWorldMater;     
     G4VPhysicalVolume* fPhysiWorld;
                 
-    DetectorMessenger* fDetectorMessenger;
+    DetectorMessenger* fChipMessenger;
 
   private:
     

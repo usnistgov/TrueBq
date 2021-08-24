@@ -44,7 +44,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 SteppingAction::SteppingAction(DetectorConstruction* det, EventAction* event)
-: G4UserSteppingAction(), fDetector(det), fEventAction(event)
+: G4UserSteppingAction(), fChip(det), fEventAction(event)
 { }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -66,8 +66,8 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
   G4LogicalVolume* lVolume = aStep->GetPreStepPoint()->GetTouchableHandle()
                              ->GetVolume()->GetLogicalVolume();
   G4int iVol = 0;
-  if (lVolume == fDetector->GetLogicTarget())   iVol = 1;
-  if (lVolume == fDetector->GetLogicDetector()) iVol = 2;
+  if (lVolume == fChip->GetLogicAbsorber())   iVol = 1;
+  if (lVolume == fChip->GetLogicDetector()) iVol = 2;
 
   // count processes
   // 

@@ -74,21 +74,21 @@ void HistoManager::Book()
     ////analysis->SetHistoDirectoryName("histo");  
     ////analysis->SetFirstHistoId(1);
 
-    G4int id = analysis->CreateH1("H10", "Energy_deposit_(MeV)_in_the_target",
+    G4int id = analysis->CreateH1("H10", "Energy_deposit_(MeV)_in_the_absorber",
         nbins, vmin, vmax);
     analysis->SetH1Activation(id, false);
 
 
-    id = analysis->CreateH1("H11", "Energy_deposit_(MeV) in the detector",
+    id = analysis->CreateH1("H11", "Energy_deposit_(MeV) in the Detector",
         nbins, vmin, vmax);
     analysis->SetH1Activation(id, false);
 
-    id = analysis->CreateH1("H12", "Energy_deposit_(MeV) in target and detector",
+    id = analysis->CreateH1("H12", "Energy_deposit_(MeV) in absorber and Detector",
         nbins, vmin, vmax);
     analysis->SetH1Activation(id, false);
 
     id = analysis->CreateH1("H13",
-        "Coincidence_spectrum_(MeV)_between the target and detector",
+        "Coincidence_spectrum_(MeV)_between the absorber and Detector",
         nbins, vmin, vmax);
     analysis->SetH1Activation(id, false);
 
@@ -98,7 +98,7 @@ void HistoManager::Book()
     analysis->SetH1Activation(id, false);
 
     id = analysis->CreateH1("H15",
-        "Anti-coincidence_spectrum_(MeV) in the detector",
+        "Anti-coincidence_spectrum_(MeV) in the Detector",
         nbins, vmin, vmax);
     analysis->SetH1Activation(id, false);
 
@@ -114,7 +114,7 @@ void HistoManager::Book()
         nbins, vmin, vmax);
     analysis->SetH1Activation(id, false);
 
-    id = analysis->CreateH1("H19", "Energy_deposit_(MeV) in the target2", // same as 10 thing but can have different # of channels, range
+    id = analysis->CreateH1("H19", "Energy_deposit_(MeV) in the absorber2", // same as 10 thing but can have different # of channels, range
         nbins, vmin, vmax);
     analysis->SetH1Activation(id, false);
 

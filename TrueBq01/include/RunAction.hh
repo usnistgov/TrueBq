@@ -57,7 +57,7 @@ class RunAction : public G4UserRunAction
     virtual void   EndOfRunAction(const G4Run*);
                             
   private:
-    DetectorConstruction*      fDetector;
+    DetectorConstruction*      fChip;
     PrimaryGeneratorAction*    fPrimary;
     Run*                       fRun;    
     HistoManager*              fHistoManager;

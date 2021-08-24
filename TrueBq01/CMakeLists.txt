@@ -43,9 +43,7 @@ target_link_libraries(TrueBq01 ${Geant4_LIBRARIES} )
 # relies on these scripts being in the current working directory.
 #
 set(TrueBq01_SCRIPTS
-    debug.mac
-    plotHisto.C
-    TrueBq01.in
+    batch.mac
     vis.mac
   )
 

@@ -48,7 +48,7 @@
 
 RunAction::RunAction(DetectorConstruction* det, PrimaryGeneratorAction* prim)
   : G4UserRunAction(),
-    fDetector(det), fPrimary(prim), fRun(0), fHistoManager(0)
+    fChip(det), fPrimary(prim), fRun(0), fHistoManager(0)
 {
  // Book predefined histograms
  fHistoManager = new HistoManager(); 
@@ -65,7 +65,7 @@ RunAction::~RunAction()
 
 G4Run* RunAction::GenerateRun()
 { 
-  fRun = new Run(fDetector); 
+  fRun = new Run(fChip); 
   return fRun;
 }
 

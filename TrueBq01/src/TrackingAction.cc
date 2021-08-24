@@ -45,7 +45,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 TrackingAction::TrackingAction(DetectorConstruction* det)
-:G4UserTrackingAction(), fDetector(det)
+:G4UserTrackingAction(), fChip(det)
 { }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -62,8 +62,8 @@ void TrackingAction::PreUserTrackingAction(const G4Track* track)
   //
   G4LogicalVolume* lVolume = track->GetVolume()->GetLogicalVolume();
   G4int iVol = 0;
-  if (lVolume == fDetector->GetLogicTarget())   iVol = 1;
-  if (lVolume == fDetector->GetLogicDetector()) iVol = 2;
+  if (lVolume == fChip->GetLogicAbsorber())   iVol = 1;
+  if (lVolume == fChip->GetLogicDetector()) iVol = 2;
     
   //secondary particles only
   if (track->GetTrackID() == 1) return;
@@ -108,7 +108,7 @@ void TrackingAction::PreUserTrackingAction(const G4Track* track)
     }                        
   }
   
-  //all unstable ions produced in target
+  //all unstable ions produced in absorber
   G4bool unstableIon = ((charge > 2.) && !(particle->GetPDGStable()));
   if ((unstableIon) && (iVol == 1)) {
     //fill ntuple id = 1
