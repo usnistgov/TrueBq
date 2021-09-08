@@ -48,7 +48,7 @@
 
 RunAction::RunAction(DetectorConstruction* det, PrimaryGeneratorAction* prim)
   : G4UserRunAction(),
-    fChip(det), fPrimary(prim), fRun(0), fHistoManager(0)
+    mydet(det), fPrimary(prim), fRun(0), fHistoManager(0)
 {
  // Book predefined histograms
  fHistoManager = new HistoManager(); 
@@ -65,7 +65,7 @@ RunAction::~RunAction()
 
 G4Run* RunAction::GenerateRun()
 { 
-  fRun = new Run(fChip); 
+  fRun = new Run(mydet); 
   return fRun;
 }
 
@@ -102,7 +102,7 @@ void RunAction::EndOfRunAction(const G4Run*)
   //save histograms      
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
   if ( analysisManager->IsActive() ) {
-    analysisManager->Write();
+      analysisManager->Write(); // Write default files
     analysisManager->CloseFile();
   }
       
@@ -110,4 +110,8 @@ void RunAction::EndOfRunAction(const G4Run*)
   if (isMaster) G4Random::showEngineStatus();
 }
 
+HistoManager* RunAction::GetHistoManager(void)
+{
+    return fHistoManager;
+}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

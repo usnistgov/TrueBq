@@ -54,6 +54,12 @@ class DetectorConstruction : public G4VUserDetectorConstruction
   
     virtual G4VPhysicalVolume* Construct();
     
+
+    void SetActivitySide(G4double value);
+    G4double GetActivitySide();
+    void SetActivityThickness(G4double value);
+    G4double GetActivityThickness();
+
     void SetAbsorberSide (G4double value);
     void SetAbsorberThickness (G4double value);
     void SetAbsorberMaterial (G4String);
@@ -78,6 +84,8 @@ class DetectorConstruction : public G4VUserDetectorConstruction
                        
   private:
   
+    G4double            fActivityThickness; // activity region
+    G4double            fActivitySide;      
     G4double           fAbsorberSide; 
     G4double           fAbsorberThickness;
     G4Material*        fAbsorberMater;
@@ -86,14 +94,14 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     G4double           fChipSide;
     G4double           fChipThickness;
     G4Material*        fChipMater;
-    G4LogicalVolume*   fLogicDetector;
+    G4LogicalVolume*   fLogicChip;
                
     G4double           fWorldSide;
     G4double           fWorldThickness;
     G4Material*        fWorldMater;     
     G4VPhysicalVolume* fPhysiWorld;
                 
-    DetectorMessenger* fChipMessenger;
+    DetectorMessenger* detectorMessenger;
 
   private:
     

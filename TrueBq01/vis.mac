@@ -1,21 +1,25 @@
 # vis.mac for TrueBq01, as modified by AB and RF 2021
 #
-# Sets some default verbose
-# and initializes the graphic.
+# Sets some default verbosity
+
 #
 /control/verbose 2
 /run/verbose 2
 
-# ADDED BY RYAN: Define geometry before /run/initialize
 
 # DEFINE GEOMETRY PRIOR TO "/run/initialize"
 
+/TrueBq01/det/setAbsorberThickness 3000 um  
+/TrueBq01/det/setAbsorberSide 1.8 mm
 
-/TrueBq01/det/setTargetThickness 30 um  
-/TrueBq01/det/setTargetSide 1.8 mm
-/TrueBq01/det/setDetectorThickness 275 um
-/TrueBq01/det/setDetectorSide 10.55 mm
- 
+/TrueBq01/det/setActivityThickness 0 um  
+/TrueBq01/det/setActivitySide 0 mm
+
+
+/TrueBq01/det/setChipThickness 275 um
+/TrueBq01/det/setChipSide 10.55 mm
+
+#
  
 /run/initialize
 #
@@ -37,7 +41,7 @@
 #/vis/viewer/set/lightsVector -1 0 0
 #
 # Specify zoom value:
-/vis/viewer/zoomTo 64
+/vis/viewer/zoomTo 8
 #
 # Specify style (surface (s) or wireframe (w)):
 /vis/viewer/set/style w
@@ -50,11 +54,11 @@
 # forceWireframe forceSolid
 /vis/geometry/set/visibility World 0 true
 /vis/geometry/set/forceWireframe World 1
-/vis/geometry/set/forceSolid Detector 1
-/vis/geometry/set/forceSolid Target 1
+/vis/geometry/set/forceSolid Chip 1
+/vis/geometry/set/forceSolid Absorber 1
 /vis/geometry/set/colour World 0 0 0 0 1  # depth R G B Opacity
-/vis/geometry/set/colour Detector 0 0 1 1 1  # depth R G B Opacity
-/vis/geometry/set/colour Target 0 1 1 .1 1   # depth R G B Opacity
+/vis/geometry/set/colour Chip 0 0 1 1 1  # depth R G B Opacity
+/vis/geometry/set/colour Absorber 0 1 1 .1 1   # depth R G B Opacity
 
 
 #
@@ -96,26 +100,14 @@
 # For file-based drivers, use this to create an empty detector view:
 #/vis/viewer/flush
 
-# ADDED BY RYAN
-# place the isotopes in the middle of the target, at rest. 
+
 /gun/particle ion
 /gun/energy 0 MeV
 /gun/ion 95 241 # Am-241
-
-
-#/gun/ion 94 238 # Pu-238
-#/gun/ion 94 239 # Pu-239
-#/gun/ion 94 240 # Pu-240
-#/process/had/rdm/setPhotoEvaporationFile 92 235 UserEvapData_z92.a235
-#/gun/particle alpha
-#/gun/energy 5.24451 MeV
-
-#/process/had/rdm/nucleusLimits 240 240 94 94
 /process/had/rdm/nucleusLimits 241 241 95 95
-#
-# Need to set file name and energy window.
+
+
 # /analysis/setFileName Am241
-# Need to set at least one hist to avoid seg fault (why?)
 /analysis/h1/set 0 10 5. 6. MeV
 
 #
@@ -123,4 +115,5 @@
 /process/had/rdm/applyARM true
 /process/had/rdm/hlThreshold 1 s
 
-/run/beamOn 100
+/run/beamOn 10
+

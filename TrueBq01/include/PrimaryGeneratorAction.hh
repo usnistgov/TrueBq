@@ -39,6 +39,7 @@
 #include "G4VUserPrimaryGeneratorAction.hh"
 #include "G4ParticleGun.hh"
 #include "globals.hh"
+#include "DetectorConstruction.hh"
 
 class G4Event;
 
@@ -47,7 +48,7 @@ class G4Event;
 class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
 public:
-    PrimaryGeneratorAction();
+    PrimaryGeneratorAction(DetectorConstruction*);
     ~PrimaryGeneratorAction();
 
 public:
@@ -56,13 +57,22 @@ public:
 
 private:
     G4ParticleGun* fParticleGun;        //pointer a to G4 service class
-    G4double dirThetaMin;
-    G4double dirThetaMax;
+
+    G4double dirThetaMin;           // for selecting random angles
+    G4double dirThetaMax;           // for selecting random angles
+    G4double cosb;                  // = cos(dirThetaMax);					
+    G4double cosa;                  // = cos(dirThetaMin) - cosb;	
+
     G4double dirPhiMin;
     G4double dirPhiMax;
+
+
     G4double sinTheta;
     G4double cosTheta;
+    DetectorConstruction* myDetector;
 
+    G4double ActivityThickness;
+    G4double ActivitySide;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

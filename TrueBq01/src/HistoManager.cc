@@ -154,4 +154,80 @@ void HistoManager::Book()
     analysis->SetNtupleActivation(false);
 }
 
+void HistoManager::WriteAnAscii()
+{
+    G4AnalysisManager* analysis = G4AnalysisManager::Instance();
+    analysis->GetFirstH1Id();
+    analysis->GetFileName();
+    analysis->GetActivation();
+    analysis->GetH1Activation(0);
+    analysis->GetH1Ascii(0);
+    analysis->GetNofH1s();
+    G4cout << "analysis->GetFileName()" << analysis->GetFileName() << G4endl;
+    G4cout << "analysis->GetActivation() " << analysis->GetActivation() << G4endl;
+    G4cout << "analysis->GetNofH1s() " << analysis->GetNofH1s() << G4endl;
+    G4cout << "analysis->GetNofH1s() " << analysis->GetNofH1s() << G4endl;
+    G4cout << "analysis->GetNofH1s() " << analysis->GetNofH1s() << G4endl;
+
+    G4cout << "analysis->GetNofH1s() " << analysis->GetNofH1s() << G4endl;
+    G4cout << "analysis->GetH1Ascii(0) " << analysis->GetH1Ascii(0) << G4endl;
+    G4cout << "analysis->GetFirstH1Id() " << analysis->GetFirstH1Id() << G4endl;
+    G4cout << "analysis->GetH1Activation(0) " << analysis->GetH1Activation(0) << G4endl;
+    G4cout << "analysis->GetH1Activation(3) " << analysis->GetH1Activation(3) << G4endl;
+
+
+    tools::histo::h1d* ryan;
+
+
+    for (G4int i = 0; i < analysis->GetNofH1s(); ++i)
+    {
+        if (analysis->GetH1Activation(i) == 1) // write output for each active hisogram
+        {
+            G4String myName = analysis->GetFileName() + "_h1_" + std::to_string(i)+".dat";
+            ryan = analysis->GetH1(i);
+            ryan->get_title();
+            ryan->get_bins();
+            ryan->get_axis(i).bin_center(0);
+            ryan->bin_height(0);
+            G4cout << "myName" << myName << G4endl;
+            G4cout << "ryan->get_title();" << ryan->get_title() << G4endl;
+            G4cout << "ryan->get_bins()" << ryan->get_bins() << G4endl;
+
+            
+            std::ofstream output; // write headder
+            output.open(myName);
+            output << "title\t" <<ryan->get_title() << G4endl;
+            output << "nbins\t" << ryan->get_bins() << G4endl << G4endl;
+            output << "E_min (MeV)\tcounts" << G4endl;
+
+            for (G4int j = 0; j < ryan->get_bins(); ++j) // write spectrum
+            {
+                G4double energy = ryan->get_axis(0).bin_lower_edge(j);
+                G4int counts = ryan->bins_entries().at(j);
+
+                if (j == 0) // 0 energy for counts below lowest channel
+                {
+                    energy = 0.0; // catchall for energies less than minimum bin energy
+
+                }
+                else if (j< (ryan->get_bins()-1)) // spctrum
+                {
+                    energy = ryan->get_axis(0).bin_lower_edge(j-1);
+                }
+                else // overflow channel
+                {
+                    energy =  ryan->get_axis(0).bin_upper_edge(j-2);
+                }
+                output<< energy << "\t"<< counts << G4endl;
+
+            }
+
+            output.close();
+            G4cout << ryan->sum_all_bin_heights() << "\t" << ryan->sum_bin_heights() << "\t"<<ryan->extra_entries() << G4endl;
+            
+        }
+
+
+    }
+}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

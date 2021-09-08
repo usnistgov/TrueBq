@@ -50,7 +50,7 @@ class ActionInitialization : public G4VUserActionInitialization
     virtual G4VSteppingVerbose* InitializeSteppingVerbose() const;
    
   private:
-    DetectorConstruction* fChip;
+    DetectorConstruction* detector;
 };
 
 #endif

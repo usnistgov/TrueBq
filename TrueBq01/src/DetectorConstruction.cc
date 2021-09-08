@@ -59,13 +59,16 @@
 DetectorConstruction::DetectorConstruction()
     :G4VUserDetectorConstruction(),
     fAbsorberMater(0), fLogicAbsorber(0),
-    fChipMater(0), fLogicDetector(0),
+    fChipMater(0), fLogicChip(0),
     fWorldMater(0), fPhysiWorld(0),
-    fChipMessenger(0)
+    detectorMessenger(0)
 {
-    //Change this to side for a square
-    //replace g4tubs to g4boxes
-    //make side and thickness 
+    // Solid Square absorber sitting on Solid Square Chip
+    // Solid Square "activity" used by primary generator
+
+    // Activity in the center of absorber by default. Can change in macro
+    fActivitySide = 0.0;
+    fActivityThickness = 0.0;
 
     //Absorber side and thickness (small square that will be on top)
     fAbsorberSide = 1.5 * mm; //make it the side
@@ -84,14 +87,14 @@ DetectorConstruction::DetectorConstruction()
 
     DefineMaterials();
 
-    fChipMessenger = new DetectorMessenger(this);
+    detectorMessenger = new DetectorMessenger(this);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 DetectorConstruction::~DetectorConstruction()
 {
-    delete fChipMessenger;
+    delete detectorMessenger;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -148,72 +151,73 @@ G4VPhysicalVolume* DetectorConstruction::ConstructVolumes()
     G4LogicalVolumeStore::GetInstance()->Clean();
     G4SolidStore::GetInstance()->Clean();
 
-    // World
+    // ============  WORLD ================= //
     //
     // (re) compute World dimensions if necessary
     fWorldSide = std::max(fAbsorberSide, fChipSide);
     fWorldThickness = fAbsorberThickness + 2 * fChipThickness;
 
-    //Replace by G4box for the square remove
+
     G4Box*
-        sWorld = new G4Box("World",                                 //name
+        sWorld = new G4Box("World",                                     //name
             0.5 * fWorldSide, 0.5 * fWorldSide, 0.5 * fWorldThickness); //dimensions  
 
     G4LogicalVolume*
-        lWorld = new G4LogicalVolume(sWorld,                  //shape
-            fWorldMater,               //material
-            "World");                  //name
+        lWorld = new G4LogicalVolume(sWorld,                            //shape
+            fWorldMater,                                                //material
+            "World");                                                   //name
 
-    fPhysiWorld = new G4PVPlacement(0,                    //no rotation
-        G4ThreeVector(),            //at (0,0,0)
-        lWorld,                     //logical volume
-        "World",                    //name
-        0,                          //mother volume
-        false,                      //no boolean operation
-        0);                         //copy number
+    fPhysiWorld = new G4PVPlacement(0,      //no rotation
+        G4ThreeVector(),                    //at (0,0,0)
+        lWorld,                             //logical volume
+        "World",                            //name
+        0,                                  //mother volume
+        false,                              //no boolean operation
+        0);                                 //copy number
 
-// Absorber
+ // ============  ABSORBER ================= //
 //
     G4Box*
         sAbsorber = new G4Box("Absorber",                                   //name
             0.5 * fAbsorberSide, 0.5 * fAbsorberSide, 0.5 * fAbsorberThickness); //dimensions
 
 
-    fLogicAbsorber = new G4LogicalVolume(sAbsorber,           //shape
-        fAbsorberMater,              //material
-        "Absorber");                 //name
+    fLogicAbsorber = new G4LogicalVolume(sAbsorber,         //shape
+        fAbsorberMater,                                     //material
+        "Absorber");                                        //name
 
 //Placement of the absorber in the word
-//Changing the position of the small square
-    new G4PVPlacement(0,                         //no rotation
-        G4ThreeVector(0, 0, 0),             //at (0,0, ( 1/2small square thickness+ 1/2big square thickness) 
-        fLogicAbsorber,                //logical volume
-        "Absorber",                    //name
-        lWorld,                      //mother  volume
-        false,                       //no boolean operation
-        0);                          //copy number
+
+    new G4PVPlacement(0,                //no rotation
+        G4ThreeVector(0, 0, 0),         //at (0,0,0)
+        fLogicAbsorber,                 //logical volume
+        "Absorber",                     //name
+        lWorld,                         //mother  volume
+        false,                          //no boolean operation
+        0);                             //copy number
 
     G4Region* emAbsorber = new G4Region("Absorber"); // create region that is the same as logical volume. Used for setting special production cuts
     fLogicAbsorber->SetRegion(emAbsorber);
     emAbsorber->AddRootLogicalVolume(fLogicAbsorber);
-    // Detector
-    //
+   
+ // ============  DETECTOR ================= //
+    
     G4Box*
-        sDetector = new G4Box("Detector",
+        sDetector = new G4Box("Chip",
             0.5 * fChipSide, 0.5 * fChipSide, 0.5 * fChipThickness);
 
 
-    fLogicDetector = new G4LogicalVolume(sDetector,       //shape
+    fLogicChip = new G4LogicalVolume(sDetector,       //shape
         fChipMater,            //material
-        "Detector");               //name
+        "Chip");               //name
 
     new G4PVPlacement(0,                         //no rotation
         G4ThreeVector(0, 0, ((-0.5 * fAbsorberThickness) - 0.5 * fChipThickness)),             //at (0,0,0)
-        fLogicDetector,              //logical volume
-        "Detector",                  //name
-        lWorld,                      //mother  volume
-        false,                       //no boolean operation
-        0);                          //copy number
+        fLogicChip,              //logical volume
+        "Chip",                  //name
+        lWorld,                  //mother  volume
+        false,                   //no boolean operation
+        0);                      //copy number
 
 
     PrintParameters();
@@ -230,7 +234,7 @@ void DetectorConstruction::PrintParameters()
     G4cout << "\n Absorber : Side = " << G4BestUnit(fAbsorberSide, "Length")
         << " Thickness = " << G4BestUnit(fAbsorberThickness, "Length")
         << " Material = " << fAbsorberMater->GetName();
-    G4cout << "\n Detector : Length = " << G4BestUnit(fChipSide, "Length")
+    G4cout << "\n Chip : Length = " << G4BestUnit(fChipSide, "Length")
         << " Tickness = " << G4BestUnit(fChipThickness, "Length")
         << " Material = " << fChipMater->GetName() << G4endl;
     G4cout << "\n" << fAbsorberMater << "\n" << fChipMater << G4endl;
@@ -265,7 +269,7 @@ void DetectorConstruction::SetDetectorMaterial(G4String materialChoice)
 
     if (pttoMaterial) {
         fChipMater = pttoMaterial;
-        if (fLogicDetector) { fLogicDetector->SetMaterial(fChipMater); }
+        if (fLogicChip) { fLogicChip->SetMaterial(fChipMater); }
         G4RunManager::GetRunManager()->PhysicsHasBeenModified();
     }
     else {
@@ -282,6 +286,29 @@ void DetectorConstruction::SetAbsorberThickness(G4double value)
     G4RunManager::GetRunManager()->ReinitializeGeometry();
 }
 
+
+G4double DetectorConstruction::GetActivitySide()
+{
+    return fActivitySide;
+}
+G4double DetectorConstruction::GetActivityThickness()
+{
+    return fActivityThickness;
+}
+
+
+
+void DetectorConstruction::SetActivitySide(G4double value)
+{
+    fActivitySide = value;
+}
+
+
+void DetectorConstruction::SetActivityThickness(G4double value)
+{
+    fActivityThickness = value;
+
+}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void DetectorConstruction::SetAbsorberSide(G4double value)
@@ -359,7 +386,7 @@ G4Material* DetectorConstruction::GetDetectorMaterial()
 
 G4LogicalVolume* DetectorConstruction::GetLogicDetector()
 {
-    return fLogicDetector;
+    return fLogicChip;
 
 
 }

@@ -39,7 +39,7 @@
 
 ActionInitialization::ActionInitialization(DetectorConstruction* Detector)
  : G4VUserActionInitialization(),
-   fChip(Detector)
+    detector(Detector)
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -51,7 +51,7 @@ ActionInitialization::~ActionInitialization()
 
 void ActionInitialization::BuildForMaster() const
 {
-  RunAction* runAction = new RunAction(fChip, 0);
+  RunAction* runAction = new RunAction(detector, 0);
   SetUserAction(runAction);
 }
 
@@ -59,19 +59,19 @@ void ActionInitialization::BuildForMaster() const
 
 void ActionInitialization::Build() const
 {
-  PrimaryGeneratorAction* primary = new PrimaryGeneratorAction();
+  PrimaryGeneratorAction* primary = new PrimaryGeneratorAction(detector);
   SetUserAction(primary);
     
-  RunAction* runAction = new RunAction(fChip, primary );
+  RunAction* runAction = new RunAction(detector, primary );
   SetUserAction(runAction);
   
-  EventAction* event = new EventAction();
+  EventAction* event = new EventAction(detector);
   SetUserAction(event);  
   
-  TrackingAction* trackingAction = new TrackingAction(fChip);
+  TrackingAction* trackingAction = new TrackingAction(detector);
   SetUserAction(trackingAction);
   
-  SteppingAction* steppingAction = new SteppingAction(fChip, event);
+  SteppingAction* steppingAction = new SteppingAction(detector, event);
   SetUserAction(steppingAction);
 }  
 

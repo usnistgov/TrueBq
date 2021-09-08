@@ -43,9 +43,9 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction* Det)
 :G4UImessenger(), 
 
 //2 Dir field and 6commands line fields
- fChip(Det), fRdecayDir(0), fDetDir(0),
- fTargMatCmd(0), fChipMatCmd(0), fTargThicknessCmd(0),
- fChipThicknessCmd(0), fTargSideCmd(0), fChipSideCmd(0) 
+ detector(Det), fRdecayDir(0), fDetDir(0),
+ fAbsorberMatCmd(0), fChipMatCmd(0), fAbsorberThicknessCmd(0),
+ fChipThicknessCmd(0), fAbsorberSideCmd(0), fChipSideCmd(0), fActivitySideCmd(0), fActivityThicknessCmd(0)
 { 
   fRdecayDir = new G4UIdirectory("/TrueBq01/");
   fRdecayDir->SetGuidance("commands specific to this example");
@@ -54,25 +54,25 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction* Det)
   fDetDir = new G4UIdirectory("/TrueBq01/det/",broadcast);
   fDetDir->SetGuidance("Detector construction commands");
         
-  fTargMatCmd = new G4UIcmdWithAString("/TrueBq01/det/setAbsorberMate",this);
-  fTargMatCmd->SetGuidance("Select material of the absorber");
-  fTargMatCmd->SetParameterName("choice",false);
-  fTargMatCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+  fAbsorberMatCmd = new G4UIcmdWithAString("/TrueBq01/det/setAbsorberMate",this);
+  fAbsorberMatCmd->SetGuidance("Select material of the absorber");
+  fAbsorberMatCmd->SetParameterName("choice",false);
+  fAbsorberMatCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
   
-  fTargThicknessCmd =
+  fAbsorberThicknessCmd =
        new G4UIcmdWithADoubleAndUnit("/TrueBq01/det/setAbsorberThickness", this); //switched from setAbsorberRadius to setAbsorberThickness
-  fTargThicknessCmd->SetGuidance("Set the Absorber Thickness."); //switched radius to thickness
-  fTargThicknessCmd->SetUnitCategory("Length");
-  fTargThicknessCmd->SetParameterName("choice",false);
-  fTargThicknessCmd->AvailableForStates(G4State_PreInit);  
+  fAbsorberThicknessCmd->SetGuidance("Set the Absorber Thickness."); //switched radius to thickness
+  fAbsorberThicknessCmd->SetUnitCategory("Length");
+  fAbsorberThicknessCmd->SetParameterName("choice",false);
+  fAbsorberThicknessCmd->AvailableForStates(G4State_PreInit);  
 
   
-  fTargSideCmd =
+  fAbsorberSideCmd =
        new G4UIcmdWithADoubleAndUnit("/TrueBq01/det/setAbsorberSide", this); //switched to setAbsorberSide
-  fTargSideCmd->SetGuidance("Set the Absorber Side.");
-  fTargSideCmd->SetUnitCategory("Length");
-  fTargSideCmd->SetParameterName("choice",false);
-  fTargSideCmd->AvailableForStates(G4State_PreInit);
+  fAbsorberSideCmd->SetGuidance("Set the Absorber Side.");
+  fAbsorberSideCmd->SetUnitCategory("Length");
+  fAbsorberSideCmd->SetParameterName("choice",false);
+  fAbsorberSideCmd->AvailableForStates(G4State_PreInit);
   
 
   fChipMatCmd = new G4UIcmdWithAString("/TrueBq01/det/setChipMate",this);
@@ -93,17 +93,32 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction* Det)
   fChipSideCmd->SetUnitCategory("Length");
   fChipSideCmd->SetParameterName("choice",false);
   fChipSideCmd->AvailableForStates(G4State_PreInit);
+
+  fActivityThicknessCmd = new G4UIcmdWithADoubleAndUnit("/TrueBq01/det/setActivityThickness", this);
+  fActivityThicknessCmd->SetGuidance("Set the Activity Thickness.");
+  fActivityThicknessCmd->SetUnitCategory("Length");
+  fActivityThicknessCmd->SetParameterName("choice", false);
+  fActivityThicknessCmd->AvailableForStates(G4State_PreInit);
+
+  fActivitySideCmd = new G4UIcmdWithADoubleAndUnit("/TrueBq01/det/setActivitySide", this);//switch it to side
+  fActivitySideCmd->SetGuidance("Set the Activity Side.");
+  fActivitySideCmd->SetUnitCategory("Length");
+  fActivitySideCmd->SetParameterName("choice", false);
+  fActivitySideCmd->AvailableForStates(G4State_PreInit);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 DetectorMessenger::~DetectorMessenger()
 {
-  delete fTargMatCmd;
+ 
+  delete fActivitySideCmd;
+  delete fActivityThicknessCmd;
+  delete fAbsorberMatCmd;
   delete fChipMatCmd;
-  delete fTargThicknessCmd;
+  delete fAbsorberThicknessCmd;
   delete fChipThicknessCmd;
-  delete fTargSideCmd;
+  delete fAbsorberSideCmd;
   delete fChipSideCmd;
   delete fDetDir;
   delete fRdecayDir;  
@@ -113,25 +128,42 @@ DetectorMessenger::~DetectorMessenger()
 
 void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
 { 
-  if (command == fTargMatCmd )
-   { fChip->SetAbsorberMaterial(newValue);}
+  if (command == fAbsorberMatCmd )
+   { detector->SetAbsorberMaterial(newValue);}
    
-  if (command == fTargSideCmd ) 
-    { fChip->SetAbsorberSide(fTargSideCmd->GetNewDoubleValue(newValue));}
+  if (command == fAbsorberSideCmd ) 
+    {
+      detector->SetAbsorberSide(fAbsorberSideCmd->GetNewDoubleValue(newValue));}
     
-  if (command == fTargThicknessCmd ) 
-    {fChip->SetAbsorberThickness(fTargSideCmd->GetNewDoubleValue(newValue));}
+  if (command == fAbsorberThicknessCmd ) 
+    {
+      detector->SetAbsorberThickness(fAbsorberSideCmd->GetNewDoubleValue(newValue));}
     
   if (command == fChipMatCmd )
-    { fChip->SetDetectorMaterial(newValue);}
+    {
+      detector->SetDetectorMaterial(newValue);}
     
   if (command == fChipSideCmd ) 
-    {fChip->SetDetectorSide(
+    {
+      detector->SetDetectorSide(
                      fChipSideCmd->GetNewDoubleValue(newValue));}
 
   if (command == fChipThicknessCmd ) 
-    {fChip->SetDetectorThickness(
+    {
+      detector->SetDetectorThickness(
                      fChipThicknessCmd->GetNewDoubleValue(newValue));}      
+
+
+  if (command == fActivitySideCmd)
+  {
+      detector->SetActivitySide(fActivitySideCmd->GetNewDoubleValue(newValue));
+  }
+
+  if (command == fActivityThicknessCmd)
+  {
+      detector->SetActivityThickness(fAbsorberSideCmd->GetNewDoubleValue(newValue));
+  }
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

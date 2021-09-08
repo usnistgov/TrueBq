@@ -1,19 +1,32 @@
-# Batch file for TrueBq01, as modified by AB and RF 2021
+# Batch file for TrueBq01, as modified by RF 2021
 #
-# Sets some default verbose
-# and initializes the graphic.
-#
+# Sets some default verbosity
+
 /control/verbose 0
 /run/verbose 1
 /event/verbose 0
 /tracking/verbose 0
 
-# ADDED BY RYAN: Define geometry before /run/initialize
 
 # DEFINE GEOMETRY PRIOR TO "/run/initialize"
+#
 
-/TrueBq01/det/setAbsorberThickness 300 um  
+/TrueBq01/det/setAbsorberMate G4_Au
+
+# Built-in material options listed here (others can be programmed in)
+# https://geant4-userdoc.web.cern.ch/UsersGuides/ForApplicationDeveloper/html/Appendix/materialNames.html
+
+/TrueBq01/det/setAbsorberThickness 30 um  
 /TrueBq01/det/setAbsorberSide 1.8 mm
+
+
+# For uniform distibution, set Activyt dimensions to be the same as for Absorber
+# For point source set to 0 mm x 0 mm
+
+/TrueBq01/det/setActivityThickness 5 um  
+/TrueBq01/det/setActivitySide 1.5 mm
+
+
 /TrueBq01/det/setChipThickness 275 um
 /TrueBq01/det/setChipSide 10.55 mm
 
@@ -22,36 +35,32 @@
 #
 
 
-# ADDED BY RYAN
-# place the isotopes in the middle of the absorber, at rest. 
-/gun/particle ion
+# choose particle (ion, alpha, beta, gamma)
+# choose ion for radioactive decay
+
+/gun/particle ion 
 /gun/energy 0 MeV
 
-#/gun/ion 95 241 # Am-241
-#/gun/ion 94 238 # Pu-238
-/gun/ion 94 239 # Pu-239
-/process/had/rdm/nucleusLimits 239 239 94 94
-#/gun/ion 94 240 # Pu-240
-#/process/had/rdm/nucleusLimits 240 240 94 94
+# Example usage: Z A Q E_level
+#/gun/ion 95 241 	# Am-241
+#/gun/ion 43 99 1 143.	# Tc-99m (143 keV state)
 
-# USER DATA FILES
+# USER DATA FILES (only used as needed)
 /process/had/rdm/setPhotoEvaporationFile 92 235 UserEvapData_z92.a235
 /process/had/rdm/setPhotoEvaporationFile 90 229 UserEvapData_z90.a229
-#/gun/ion 92 235 1 13.034
 
-#/gun/particle alpha
-#/gun/energy 5.24451 MeV
 
+# MUST SET A FILE NAME AND HISTOGRAM. CAN CHANGE LATER.
+/analysis/setFileName myName
+/analysis/h1/set 0 1000 0 1 MeV	# ID Nchannels Elow Ehigh Unit
 #
-# Need to set file name and energy window.
-/analysis/setFileName Pu239_100
-# Need to set at least one hist
-/analysis/h1/set 0 4000 5.1 5.3 MeV	# Target histogram narrow
-#
+# SOME DECAY PHYSICS OPTIONS
 /process/had/rdm/applyICM true # internal electron conversion
 /process/had/rdm/applyARM true # atomic rearangment model. 
 #/process/had/rdm/hlThreshold 1 s # max level tau as non-metastable
 
+
+### EXAMPLES ###
 #/gun/ion 94 239 # Pu-239
 #/process/had/rdm/nucleusLimits 239 239 94 94
 #/analysis/setFileName Pu239
@@ -65,8 +74,14 @@
 /gun/ion 95 241 # Am-241
 /process/had/rdm/nucleusLimits 241 241 95 95
 /analysis/setFileName Am241
-/analysis/h1/set 0 4000 5.05 5.650 MeV 	# Target histogram narrow
+/analysis/h1/set 0 4000 5.500 5.650 MeV
 /run/beamOn 100000
+
+#/analysis/setFileName Am241
+#/gun/particle alpha
+#/gun/energy 10 keV
+#/analysis/h1/set 0 3 10 13.1 keV 	
+#/run/beamOn 1000000
 
 #/gun/ion 95 243 # Am-243
 #/process/had/rdm/nucleusLimits 243 243 95 95
@@ -77,7 +92,7 @@
 #/gun/ion 91 231 # Pa-231
 #/process/had/rdm/nucleusLimits 231 231 91 91
 #/analysis/setFileName Pa231
-#/analysis/h1/set 0 4000 4.7 5.2 MeV  	# Target histogram narrow
+#/analysis/h1/set 0 4000 4.7 5.2 MeV  	
 #/run/beamOn 10000
 
 #/process/had/rdm/nucleusLimits 239 239 94 94

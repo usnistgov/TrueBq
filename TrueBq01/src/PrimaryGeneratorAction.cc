@@ -45,15 +45,16 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-
-
-PrimaryGeneratorAction::PrimaryGeneratorAction()
-    : G4VUserPrimaryGeneratorAction(), fParticleGun(0), cosTheta(1.0), sinTheta(0.0)
+PrimaryGeneratorAction::PrimaryGeneratorAction(DetectorConstruction* det)
+    :myDetector(det)
 {
-
     G4int n_particle = 1;
     fParticleGun = new G4ParticleGun(n_particle);
+    cosTheta = 1.0;
+    sinTheta = 0.0;
 
+    ActivityThickness = 0.0; // can be set in macro
+    ActivitySide = 0.0;// can be set in macro
 
     fParticleGun->SetParticleEnergy(0 * eV);
 
@@ -66,10 +67,16 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
     dirThetaMin = 0.0;				// Min angle (0 degrees)
     dirThetaMax = CLHEP::pi;		// Max angle (pi = 180 degrees)
 
+    cosb = cos(dirThetaMax);						// for Random angles
+    cosa = cos(dirThetaMin) - cosb;					// for Random angles
+
  // initialize ranges for random phi direction (2*pi)
     dirPhiMin = 0.0;				// 0
     dirPhiMax = CLHEP::twopi;		// 2*pi
+
 }
+
+
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -93,11 +100,18 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
         fParticleGun->SetParticleCharge(ionCharge);
     }
 
+    if (anEvent->GetEventID() == 1) // First event, do some things once
+    {
+        // GET DIMENSIONS OF ACTIVE VOLUME OF SOURCE
+        ActivitySide = myDetector->GetActivitySide(); // can be set in macro (To do: could make Messenger instead of using Det messenger)
+        ActivityThickness = myDetector->GetActivityThickness(); // can be set in macro
+    }
+
     // CHOOSE RANDOM DIRECTION. Ranges of direction set in Constructor. //
 
-    G4double b = cos(dirThetaMax);						// for Random angles
-    G4double a = cos(dirThetaMin) - b;					// for Random angles
-    G4double cosTheta = a * G4UniformRand() + b;		// for 0 to 180 deg, cos form 1 to -1, b = 2, a = -1)
+
+
+    G4double cosTheta = cosa * G4UniformRand() + cosb;		// for 0 to 180 deg, cos form 1 to -1, b = 2, a = -1)
 
     G4double sinTheta2 = 1. - cosTheta * cosTheta;		// (sintheta)^2
     if (sinTheta2 < 0.)  sinTheta2 = 0.;				// fix rounding error before sqrt!
@@ -112,11 +126,15 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     // SET POSITION
     fParticleGun->SetParticlePosition(G4ThreeVector(0, 0, 0));
 
-    bool distributed = FALSE; // Distributed through absorber? (If false, then point source in center)
-    if (distributed)
-    {
-        fParticleGun->SetParticlePosition(G4ThreeVector(G4RandFlat::shoot(-15.0 * um, +15.0 * um), G4RandFlat::shoot(-150.0 * um, +150.0 * um), G4RandFlat::shoot(-15.0 * um, +15.0 * um)));
-    }
+    // SET ACTIVITY DISTRIBUTION BASED ON MACRO INPUT
+
+
+        // geometry origin is center of the absorber. Distribute activity based on user dimensions
+        fParticleGun->SetParticlePosition(G4ThreeVector (G4RandFlat::shoot(-ActivitySide/2.0, ActivitySide/2.0), 
+                                                         G4RandFlat::shoot(-ActivitySide / 2.0, ActivitySide / 2.0), 
+                                                         G4RandFlat::shoot(-ActivityThickness / 2.0, ActivityThickness / 2.0)));
+   
+
 
 
 

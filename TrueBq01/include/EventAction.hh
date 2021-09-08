@@ -35,6 +35,7 @@
 #define EventAction_h 1
 
 #include "G4UserEventAction.hh"
+#include "DetectorConstruction.hh"
 #include "globals.hh"
 #include "G4timer.hh"
 
@@ -43,17 +44,19 @@
 class EventAction : public G4UserEventAction
 {
   public:
-    EventAction();
+    EventAction(DetectorConstruction*);
    ~EventAction();
 
   public:
     virtual void BeginOfEventAction(const G4Event*);
     virtual void   EndOfEventAction(const G4Event*);
+    void WriteAnAscii();
     
     void AddEdep (G4int iVol, G4double Edep, G4double time, G4double weight);
                 
   private:
-      G4double dtReal; // real clock time elapsed for progress bar
+    DetectorConstruction* mydet;
+    G4double dtReal; // real clock time elapsed for progress bar
     G4double fEdep1,   fEdep2;
     G4double fWeight1, fWeight2;
     G4double fTime0; 
@@ -62,6 +65,7 @@ class EventAction : public G4UserEventAction
     G4int numberOfBeams; // number of beams to run
     G4String niceTime(G4int tsec);
     G4int eventID;
+    G4String sPrimary; // name of primary particle
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

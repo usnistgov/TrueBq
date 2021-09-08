@@ -45,6 +45,9 @@ target_link_libraries(TrueBq01 ${Geant4_LIBRARIES} )
 set(TrueBq01_SCRIPTS
     batch.mac
     vis.mac
+    UserEvapData_z90.a229
+    UserEvapData_z92.a235
+    README
   )
 
 foreach(_script ${TrueBq01_SCRIPTS})
