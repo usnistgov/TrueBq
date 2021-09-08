@@ -12,8 +12,8 @@ TrueBq01 is based on the the rdecay02 example included with Geant4 distribtuions
 4. Copy addtional User files from source code folder to installation folder
 
 ## Running TrueBq01
-from build directory (eg. TrueBq01-build)
-For batch file: TrueBq01-build> \Release\TrueBq01.exe batch.mac
+from build directory (eg. TrueBq01-build)  
+For batch file: TrueBq01-build> \Release\TrueBq01.exe batch.mac  
 For interactive mode (w/ graphics): TrueBq01-build> \Release\TrueBq01.exe
 
 ## Simulation information
@@ -25,14 +25,14 @@ For interactive mode (w/ graphics): TrueBq01-build> \Release\TrueBq01.exe
 Dimensions of both solids can be set by user (e.g. in batch.mac)
 
 ### Source:
-Source is selected by the user; can be radionuclide or particle of a given energy.
+Source is selected by the user; can be radionuclide or particle of a given energy.  
 Source distribution within absorber can be set in the macro.
 
 ### Physics:
 BiasedRDPhysics with Radioactivation
 
 ### Event processing:
-Decay Energy Spectrum of total energy deposited in the absorber is tallied in a histogram. Other histograms can be activate.
+Decay Energy Spectrum of total energy deposited in the absorber is tallied in a histogram. Other histograms can be activate.  
 Energy resoultion added as Gaussian noise. Rough resolution is based on Hoover (2015) results from LANL & NIST, scaled for mass and temperature
 
 ### Output:
@@ -40,7 +40,7 @@ Decay Energy Spectrum of total energy deposited in the absorber is saved in defa
 
 
 ## Contact Information
-Ryan Fitzgerald
+Ryan Fitzgerald  
 ryan.fitzgerald@nist.gov
 
 ## Acknowledgement for reused code
