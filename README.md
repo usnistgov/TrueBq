@@ -21,18 +21,18 @@ Dimensions of both solids can be set by user (e.g. in batch.mac)
 
 ### Source:
 Source is selected by the user; can be radionuclide or particle of a given energy.
-Source is either centered or uniform in the absorber. Other options can be implemented in the code.
+Source distribution within absorber can be set in the macro.
 
 ### Physics:
 BiasedRDPhysics with Radioactivation
 
 ### Event processing:
-Decay Energy Spectrum of total energy deposited in the absorber and chip are tallied in separate histograms.
+Decay Energy Spectrum of total energy deposited in the absorber is tallied in a histogram. Other histograms can be activate.
 Energy resoultion added as Gaussian noise. Rough resolution is based on Hoover (2015) results from LANL & NIST, scaled for mass and temperature
 
 ### Output:
-Decay Energy Spectrum of total energy deposited in the absorber is saved in an ascii (csv) file. Can be changed to root in histomanager header file.
-For ascii file, header gives number of bins and energy range. The column 1 is energy, column 2 counts, then other moments (anyone see where this is documenented?)
+Decay Energy Spectrum of total energy deposited in the absorber is saved in default .csv file and custom .out file.
+
 
 ## Contact Information
 Ryan Fitzgerald
