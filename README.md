@@ -11,6 +11,11 @@ TrueBq01 is based on the the rdecay02 example included with Geant4 distribtuions
 3. Follow Geant4 user code compilation instructions (I used Cmake version 3.19.2)
 4. Copy addtional User files from source code folder to installation folder
 
+## Running TrueBq01
+from build directory (eg. TrueBq01-build)
+For batch file: TrueBq01-build> \Release\TrueBq01.exe batch.mac
+For interactive mode (w/ graphics): TrueBq01-build> \Release\TrueBq01.exe
+
 ## Simulation information
 
 ### Geometry:
