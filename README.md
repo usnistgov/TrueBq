@@ -8,8 +8,10 @@ TrueBq01 is based on the the rdecay02 example included with Geant4 distribtuions
 ## Installation Process
 1. Install Geant4
 2. Download source code folder (TrueBq01)
-3. Follow Geant4 user code compilation instructions (I used Cmake version 3.19.2)
-4. Copy addtional User files from source code folder to installation folder
+3. Follow Geant4 user code compilation instructions
+ 3.1 I used Cmake version 3.19.2
+ 3.2 in Visual studio, use configuration "Release" (not "Debug", which is default)
+
 
 ## Running TrueBq01
 from build directory (eg. TrueBq01-build)  
