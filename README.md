@@ -3,7 +3,7 @@ TrueBq01 is a simple Geant4 simulation for cryogenic decay-energy spectrometery.
 It has been compiled using Geant4.10.6 on Windows using Microsoft Visual Studio Community 2019
 Version 16.8.3. 
 
-TrueBq01 is based on the the rdecay02 example included with Geant4 distribtuions. See rdecay02 README file within file structure
+TrueBq01 is based on the the rdecay02 example included with Geant4 distribtuions. 
 
 ## Installation Process
 1. Install Geant4
