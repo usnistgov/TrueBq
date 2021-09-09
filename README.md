@@ -14,9 +14,9 @@ TrueBq01 is based on the the rdecay02 example included with Geant4 distribtuions
 
 
 ## Running TrueBq01
-from build directory (eg. TrueBq01-build)  
+From build directory (eg. TrueBq01-build)-  
 For batch file: TrueBq01-build> \Release\TrueBq01.exe batch.mac  
-For interactive mode (w/ graphics): TrueBq01-build> \Release\TrueBq01.exe
+For interactive mode: (w/ graphics): TrueBq01-build> \Release\TrueBq01.exe
 
 ## Simulation information
 
