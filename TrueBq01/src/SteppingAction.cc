@@ -36,15 +36,18 @@
 #include "Run.hh"
 #include "EventAction.hh"
 #include "HistoManager.hh"
+#include "G4ParticleDefinition.hh"
+#include "G4Electron.hh"
 
 #include "G4RunManager.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4UnitsTable.hh"
+#include "G4ThreeVector.hh"
                            
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 SteppingAction::SteppingAction(DetectorConstruction* det, EventAction* event)
-: G4UserSteppingAction(), fChip(det), fEventAction(event)
+: G4UserSteppingAction(), fDetector(det), fEventAction(event)
 { }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -66,15 +69,22 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
   G4LogicalVolume* lVolume = aStep->GetPreStepPoint()->GetTouchableHandle()
                              ->GetVolume()->GetLogicalVolume();
   G4int iVol = 0;
-  if (lVolume == fChip->GetLogicAbsorber())   iVol = 1;
-  if (lVolume == fChip->GetLogicDetector()) iVol = 2;
+  if (lVolume == fDetector->GetLogicAbsorber()) iVol = 1; // Absorber is iVol = 1
+  if (lVolume == fDetector->GetLogicTES())     iVol = 2; // Chip is iVol = 2 (can also select GetLogicTES())
+
+  // to do: kill all neutrinos. Add stacking action? Does Geant4 still use that?
+ // if ((aStep->GetTrack()->GetParticleDefinition() == G4Electron::Electron()) && (iVol==0)) // TEMP Kill all electrons in air space
+ // {
+ //     aStep->GetTrack()->SetTrackStatus(fStopAndKill);
+ // }
 
   // count processes
   // 
   const G4StepPoint* endPoint = aStep->GetPostStepPoint();
   const G4VProcess* process   = endPoint->GetProcessDefinedStep();
   run->CountProcesses(process, iVol);
-  
+
+ 
   // energy deposit
   //
   G4double edepStep = aStep->GetTotalEnergyDeposit();
@@ -82,7 +92,22 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
   G4double time   = aStep->GetPreStepPoint()->GetGlobalTime();
   G4double weight = aStep->GetPreStepPoint()->GetWeight();   
   fEventAction->AddEdep(iVol, edepStep, time, weight);
-  
+ 
+ 
+ // PRINT Event ID, x, y, z, and edep for each step
+  //G4ThreeVector position = aStep->GetPostStepPoint()->GetPosition(); // TEMP position of energy deposition
+  //G4double x = aStep->GetPostStepPoint()->GetPosition().getX();
+  //G4double y = aStep->GetPostStepPoint()->GetPosition().getY();
+  //G4double z = aStep->GetPostStepPoint()->GetPosition().getZ();
+  //G4int eventID = fEventAction->GeteventID()+2;
+  //G4cout << std::scientific<<eventID << "\t"<< x/mm<<"\t"<<y/mm<<"\t"<<z/mm << "\t" << edepStep/MeV << G4endl;
+ 
+ 
+ // if ((aStep->GetTrack()->GetParticleDefinition()->GetParticleName() == "Au197") && (aStep->GetTrack()->GetCurrentStepNumber() == 1))
+ // G4cout << aStep->GetTotalEnergyDeposit() << G4endl;
+  //    G4cout << G4BestUnit(aStep->GetTrack()->GetKineticEnergy(), "energy");
+      //     fEventAction->AddParticleCreation(aStep->GetTotalEnergyDeposit());
+
   //fill ntuple id = 2
   G4int id = 2;   
   analysisManager->FillNtupleDColumn(id,0, edepStep);

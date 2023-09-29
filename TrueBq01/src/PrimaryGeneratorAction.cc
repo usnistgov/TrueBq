@@ -41,6 +41,7 @@
 #include "G4Geantino.hh"
 #include "G4SystemOfUnits.hh"
 #include "Randomize.hh"
+#include "G4UImanager.hh"
 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -55,6 +56,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction(DetectorConstruction* det)
 
     ActivityThickness = 0.0; // can be set in macro
     ActivitySide = 0.0;// can be set in macro
+    ActivityZOffset = 0.0; // can be set in macro
 
     fParticleGun->SetParticleEnergy(0 * eV);
 
@@ -62,10 +64,11 @@ PrimaryGeneratorAction::PrimaryGeneratorAction(DetectorConstruction* det)
 
     fParticleGun->SetParticlePosition(G4ThreeVector(0, 0, 0));
 
-    // initialize ranges for random theta DIRECTION (0 is along z axis)
+    // initialize ranges for random theta DIRECTION (0 is along z axis); Done again at 1st event using user input
 
-    dirThetaMin = 0.0;				// Min angle (0 degrees)
-    dirThetaMax = CLHEP::pi;		// Max angle (pi = 180 degrees)
+    dirThetaMin = 0.0;				// Min angle (0 degrees) - can be set in Macro
+    dirThetaMax = CLHEP::pi;		// Max angle (pi = 180 degrees) - can be set in Macro
+    myDetector->SetThetaMax(dirThetaMax); // below, at first shoot, will be read from myDector, which can be set in Macro
 
     cosb = cos(dirThetaMax);						// for Random angles
     cosa = cos(dirThetaMin) - cosb;					// for Random angles
@@ -100,11 +103,35 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
         fParticleGun->SetParticleCharge(ionCharge);
     }
 
-    if (anEvent->GetEventID() == 1) // First event, do some things once
+    if (anEvent->GetEventID() == 0) // First event, do some things once
     {
         // GET DIMENSIONS OF ACTIVE VOLUME OF SOURCE
         ActivitySide = myDetector->GetActivitySide(); // can be set in macro (To do: could make Messenger instead of using Det messenger)
         ActivityThickness = myDetector->GetActivityThickness(); // can be set in macro
+        ActivityCenter = myDetector->GetAbsorberCenter(); // get center point of absorber (now absorber is centered at 0,0,0)
+        ActivityZOffset = myDetector->GetActivityZOffset(); // z offset of activity origin (e.g. for external source) 
+
+        dirThetaMax = myDetector->GetThetaMax(); // can be set in macro
+        dirThetaMin = myDetector->GetThetaMin(); // can be set in macro
+        cosb = cos(dirThetaMax);						// for Random angles using dirThetaMax that can be modified by Macro
+        cosa = cos(dirThetaMin) - cosb;					// for Random angles
+
+        if (fParticleGun->GetParticleDefinition()->GetParticleType() == "nucleus")
+        {
+            G4UImanager* UI = G4UImanager::GetUIpointer();
+            if (myDetector->GetParentOnly() == true) // Limit decay to the parent only, if requested in macro
+            {   
+                G4String AA = std::to_string(fParticleGun->GetParticleDefinition()->GetAtomicMass());
+                G4String ZZ = std::to_string(fParticleGun->GetParticleDefinition()->GetAtomicNumber());
+                G4String SP = " ";
+                UI->ApplyCommand("/process/had/rdm/nucleusLimits" + SP + AA + SP + AA + SP + ZZ + SP + ZZ);
+            }
+            else // wide limits
+            {
+                UI->ApplyCommand("/process/had/rdm/nucleusLimits 1 300 1 200");      
+            }
+        }
+
     }
 
     // CHOOSE RANDOM DIRECTION. Ranges of direction set in Constructor. //
@@ -119,6 +146,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
     G4double phi = G4RandFlat::shoot(dirPhiMin, dirPhiMax);  // random  phi from from 0 to 2*pi
 
+   
     G4ThreeVector direction = G4ThreeVector(sinTheta * std::cos(phi), sinTheta * std::sin(phi), cosTheta).unit(); // create direction vector
 
     fParticleGun->SetParticleMomentumDirection(direction);
@@ -128,15 +156,11 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
     // SET ACTIVITY DISTRIBUTION BASED ON MACRO INPUT
 
-
-        // geometry origin is center of the absorber. Distribute activity based on user dimensions
+        // Absorber is at the center of the world. Shoot uniformly within a set volume.
         fParticleGun->SetParticlePosition(G4ThreeVector (G4RandFlat::shoot(-ActivitySide/2.0, ActivitySide/2.0), 
                                                          G4RandFlat::shoot(-ActivitySide / 2.0, ActivitySide / 2.0), 
-                                                         G4RandFlat::shoot(-ActivityThickness / 2.0, ActivityThickness / 2.0)));
+                                                         G4RandFlat::shoot(-ActivityThickness / 2.0, ActivityThickness / 2.0) + ActivityZOffset));
    
-
-
-
 
     //create vertex
     //   

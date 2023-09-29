@@ -68,7 +68,7 @@ void ActionInitialization::Build() const
   EventAction* event = new EventAction(detector);
   SetUserAction(event);  
   
-  TrackingAction* trackingAction = new TrackingAction(detector);
+  TrackingAction* trackingAction = new TrackingAction(detector, event);
   SetUserAction(trackingAction);
   
   SteppingAction* steppingAction = new SteppingAction(detector, event);

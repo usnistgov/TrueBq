@@ -41,7 +41,7 @@
 // factory
 #include "G4PhysicsConstructorFactory.hh"
 
-G4_DECLARE_PHYSCONSTR_FACTORY(BiasedRDPhysics);
+G4_DECLARE_PHYSCONSTR_FACTORY(BiasedRDPhysics); // Called in PhysicsList.cc for radioactive decay
 
 
 BiasedRDPhysics::BiasedRDPhysics(G4int)
@@ -52,6 +52,7 @@ BiasedRDPhysics::BiasedRDPhysics(G4int)
   deex->SetStoreICLevelData(true);
   deex->SetMaxLifeTime(G4NuclideTable::GetInstance()->GetThresholdOfHalfLife()
                        /std::log(2.));
+
 }
 
 BiasedRDPhysics::BiasedRDPhysics(const G4String&)
@@ -82,5 +83,10 @@ void BiasedRDPhysics::ConstructProcess()
 
   G4PhysicsListHelper::GetPhysicsListHelper()->
     RegisterProcess(new G4Radioactivation(), G4GenericIon::GenericIon());
+  //G4Radioactivation * rf = new G4Radioactivation();
+  //G4NucleusLimits mylim(241,241,95,95);
+  //rf->SetNucleusLimits(mylim);
+
+
 }
 

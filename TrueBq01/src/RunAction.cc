@@ -31,6 +31,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #include "RunAction.hh"
+#include "RunActionMessenger.hh"
 #include "Run.hh"
 #include "DetectorConstruction.hh"
 #include "PrimaryGeneratorAction.hh"
@@ -43,6 +44,7 @@
 
 #include "Randomize.hh"
 #include <iomanip>
+#include "G4UImanager.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -50,6 +52,10 @@ RunAction::RunAction(DetectorConstruction* det, PrimaryGeneratorAction* prim)
   : G4UserRunAction(),
     mydet(det), fPrimary(prim), fRun(0), fHistoManager(0)
 {
+  
+ fRunMessenger = new RunActionMessenger(this);
+
+    
  // Book predefined histograms
  fHistoManager = new HistoManager(); 
 }
@@ -102,7 +108,7 @@ void RunAction::EndOfRunAction(const G4Run*)
   //save histograms      
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
   if ( analysisManager->IsActive() ) {
-      analysisManager->Write(); // Write default files
+   //   analysisManager->Write(); // Write default files RPF - now writing ".out" files instead in Event. Uncomment this for Geant4 default .csv files
     analysisManager->CloseFile();
   }
       

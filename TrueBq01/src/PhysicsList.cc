@@ -34,6 +34,9 @@
 #include "G4UnitsTable.hh"
 
 #include "G4EmStandardPhysics.hh"
+#include "G4EmStandardPhysics_option3.hh" // second-most accurate
+#include "G4EmStandardPhysics_option4.hh" // most accurate
+
 #include "G4EmExtraPhysics.hh"
 #include "G4EmParameters.hh"
 #include "G4DecayPhysics.hh"
@@ -46,7 +49,14 @@
 #include "G4IonElasticPhysics.hh"
 #include "G4IonPhysics.hh"
 #include "G4IonINCLXXPhysics.hh"
+#include "G4IonCoulombScatteringModel.hh"
 
+
+#include "G4EmStandardPhysicsSS.hh"
+#include "G4EmPenelopePhysics.hh"
+
+#include "PhysListEmStandardNR.hh" // local source code copied from example TestEM7
+#include "G4EmProcessOptions.hh"
 // particles
 
 #include "G4BosonConstructor.hh"
@@ -57,6 +67,8 @@
 #include "G4IonConstructor.hh"
 #include "G4ShortLivedConstructor.hh"
 #include "G4RegionStore.hh"
+
+#include "G4StepLimiterPhysics.hh"
 
 
 PhysicsList::PhysicsList()
@@ -81,15 +93,37 @@ PhysicsList::PhysicsList()
 	// Mandatory for G4NuclideTable
 	// Half-life threshold must be set small or many short-lived isomers 
 	// will not be assigned life times (default to 0) 
-	G4NuclideTable::GetInstance()->SetThresholdOfHalfLife(10000 * second); // 0.1*picosecond
-	G4NuclideTable::GetInstance()->SetLevelTolerance(1.0 * eV);
+	G4NuclideTable::GetInstance()->SetThresholdOfHalfLife(0.1*picosecond); // 0.1*picosecond; 100*minutes to avoid Pu-239 extra gammas
+//	 G4NuclideTable::GetInstance()->SetLevelTolerance(1.0 * eV);
 
-	// EM physics
-	RegisterPhysics(new G4EmStandardPhysics());
+// EM physics: CHOOSE YOUR PHYSICS LIST
+//	RegisterPhysics(new G4EmStandardPhysics()); // Standard Physics
+	RegisterPhysics(new G4EmStandardPhysics_option4()); // Standard Physics option 4 = most accurate
+//	RegisterPhysics(new G4EmStandardPhysicsSS()); // Single Scattering, includes G4IonCoulombScatteringModel
+//	RegisterPhysics(new G4EmPenelopePhysics); // Penelope model
+//	RegisterPhysics(new PhysListEmStandardNR()); // G4NuclearRecoil
+
+// Step limiter
+	RegisterPhysics(new G4StepLimiterPhysics()); // RPF
+
 	G4EmParameters* param = G4EmParameters::Instance();
 	param->SetAugerCascade(true);
-	param->SetStepFunction(1., 1 * CLHEP::mm);
-	param->SetStepFunctionMuHad(1., 1 * CLHEP::mm);
+	param->SetStepFunction(.1, 1 * CLHEP::um);
+	param->SetStepFunctionMuHad(.1, 1 * CLHEP::um);
+	param->SetMinEnergy(0.4 * eV);
+	param->SetLowestElectronEnergy(100 * eV);
+	
+	 G4EmProcessOptions emOptions;
+	
+	//physics tables
+	//
+	emOptions.SetMinEnergy(.04 * eV);        // I changed this to 1 eV (from 10 eV) to get events down to 200 eV
+	
+	//emOptions.SetMaxEnergy(10 * MeV);      // was 10*TeV
+	//.SetDEDXBinning(12 * 20);
+	//emOptions.SetLambdaBinning(12 * 20);
+
+
 	// Decay
 	RegisterPhysics(new G4DecayPhysics());
 
@@ -113,8 +147,9 @@ PhysicsList::PhysicsList()
 
 	// Gamma-Nuclear Physics
 	G4EmExtraPhysics* gnuc = new G4EmExtraPhysics(verb);
-	gnuc->ElectroNuclear(false);
+	gnuc->ElectroNuclear(false); 
 	gnuc->MuonNuclear(false);
+	
 	RegisterPhysics(gnuc);
 
 }
@@ -150,23 +185,35 @@ void PhysicsList::ConstructParticle()
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void PhysicsList::SetCuts() // set general cut value (range of 2ndary particle to produce). Then set shorter cut (lower E) for Absorber
-// in Gold, 5 um -> 53 keV e' and 5.2 keV gamma
+// in Gold, 5 um -> 53 keV e' and 5.2 keV gamma, 500 eV 197Au in Single Scattering mode (EmStandardSS)
 // in Si, 1 mm -> 548 keV e' and 7 keV gamma
 // To do: Add these options to messenger
 {
-	SetCutValue(1 * mm, "proton");
-	SetCutValue(1 * mm, "e-");
-	SetCutValue(1 * mm, "e+");
-	SetCutValue(1 * mm, "gamma");
+	SetCutValue(100 * um, "proton");
+	SetCutValue(1 * um, "e-");
+	SetCutValue(1 * um, "e+");
+	SetCutValue(10 * um, "gamma");
 
-	// Production thresholds for Detector regions
+	// to set cut below 990 eV, in the Marco use /cuts/setLowEdge 100 eV, or use this code below //
+	// to do, work this into a custom cuts macro that does regular, regional, and lowedge cuts!
+	// can use /run/setCut or run/setCutForAGivenParticle, run/setCutForARegion as well, down to 990 eV
+	// 
+	// G4double HighEdge = G4ProductionCutsTable::GetProductionCutsTable()->GetHighEdgeEnergy();
+	// ::GetProductionCutsTable()->SetEnergyRange(100 * eV, HighEdge);
+
+
+	// Production thresholds for ABSORBER region
 	G4Region* region;
 	G4String regName;
 	G4ProductionCuts* cuts;
 	regName = "Absorber";
 	region = G4RegionStore::GetInstance()->GetRegion(regName);
 	cuts = new G4ProductionCuts;
-	cuts->SetProductionCut(5 * um); // same cuts for gamma, proton, e- and e+
+	
+	cuts->SetProductionCut(1 * um); // general. Includes recoil ions, though can't seem to set them per se. (0.1 um)
+	//cuts->SetProductionCut(.25 * um,"e-"); // below 1 um, limit is still 990 eV. Why? (0.1 um)
+	//cuts->SetProductionCut(.25 * um, "e+"); // 
+	//cuts->SetProductionCut(.25 * um, "gamma"); // 
 	region->SetProductionCuts(cuts);
 }
 

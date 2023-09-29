@@ -29,6 +29,7 @@
 // 
 
 #include "Run.hh"
+#include "DetectorMessenger.hh"
 #include "DetectorConstruction.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "HistoManager.hh"
@@ -49,13 +50,24 @@ Run::Run(DetectorConstruction* det)
 {
   fEdepAbsorber = fEdepAbsorber2 = 0.;
   fEdepDetect = fEdepDetect2 = 0.;  
+  Eres = 0.0; // energy resolution
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 Run::~Run()
 { }
 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void Run::SetEres(G4double E)
+{
+    Eres = E; // used by RunActionMessenger
+}
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+G4double Run::GetEres()
+{
+    return Eres; // used by RunActionMessenger
+}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void Run::SetPrimary(G4ParticleDefinition* particle, G4double energy)
@@ -133,7 +145,7 @@ void Run::ParticleCount(G4String name, G4double Ekin, G4int iVol)
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 //Important function
-//Check the energy deposited in the main and the envelop Detector
+//Check the energy deposited in the absorber and the chip
 void Run::AddEdep(G4double edep1, G4double edep2)
 { 
   fEdepAbsorber  += edep1;
@@ -258,18 +270,12 @@ void Run::EndOfRun()
   G4cout << "\n The run is " << numberOfEvent << " "<< Particle << " of "
          << G4BestUnit(fEkin,"Energy") << " through : ";
           
-  G4cout << "\n Absorber   : Length = " 
+  G4cout << "\n Absorber   : Side = " 
          << G4BestUnit(fChip->GetAbsorberSide(),"Length")
-         << " Radius    = " 
+         << " Thickness    = " 
          << G4BestUnit(fChip->GetAbsorberThickness(),"Length")  
          << " Material = " 
-         << fChip->GetAbsorberMaterial()->GetName();
-  G4cout << "\n Detector : Length = " 
-         << G4BestUnit(fChip->GetDetectorSide(),"Length")
-         << " Thickness = " 
-         << G4BestUnit(fChip->GetDetectorThickness(),"Length")  
-         << " Material = " 
-         << fChip->GetDetectorMaterial()->GetName() << G4endl;
+         << fChip->GetAbsorberMaterial()->GetName() << G4endl;
 
   if (numberOfEvent == 0) { G4cout.precision(dfprec);   return;}
   
@@ -326,8 +332,8 @@ void Run::EndOfRun()
  // }
  // G4cout << G4endl;
  //   
- // // particles count in absorber
- // //
+  // particles count in absorber
+  //
  // G4cout << "\n List of generated particles in absorber:" << G4endl;
  //    
  // std::map<G4String,ParticleData>::iterator itc;               

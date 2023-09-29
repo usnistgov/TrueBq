@@ -74,50 +74,57 @@ void HistoManager::Book()
     ////analysis->SetHistoDirectoryName("histo");  
     ////analysis->SetFirstHistoId(1);
 
-    G4int id = analysis->CreateH1("H10", "Energy_deposit_(MeV)_in_the_absorber",
+    G4int id = analysis->CreateH1("H00", "Energy_deposit_(MeV)_in_the_absorber",
         nbins, vmin, vmax);
     analysis->SetH1Activation(id, false);
 
 
-    id = analysis->CreateH1("H11", "Energy_deposit_(MeV) in the Detector",
+    id = analysis->CreateH1("H01", "Energy_deposit_(MeV)_in_the_chip",
         nbins, vmin, vmax);
     analysis->SetH1Activation(id, false);
 
-    id = analysis->CreateH1("H12", "Energy_deposit_(MeV) in absorber and Detector",
+    id = analysis->CreateH1("H02", "Energy_deposit_(MeV)_in_the_absorber_and_chip",
         nbins, vmin, vmax);
     analysis->SetH1Activation(id, false);
 
-    id = analysis->CreateH1("H13",
+    id = analysis->CreateH1("H03",
         "Coincidence_spectrum_(MeV)_between the absorber and Detector",
         nbins, vmin, vmax);
     analysis->SetH1Activation(id, false);
 
-    id = analysis->CreateH1("H14",
+    id = analysis->CreateH1("H04",
         "Anti-coincidence_spectrum_(MeV) in the traget",
         nbins, vmin, vmax);
     analysis->SetH1Activation(id, false);
 
-    id = analysis->CreateH1("H15",
+    id = analysis->CreateH1("H05",
         "Anti-coincidence_spectrum_(MeV) in the Detector",
         nbins, vmin, vmax);
     analysis->SetH1Activation(id, false);
 
-    id = analysis->CreateH1("H16", "Decay_emission_spectrum_(0 - 10 MeV)",
+    id = analysis->CreateH1("H06", "Decay_emission_spectrum_(0 - 10 MeV)", 
         nbins, vmin, vmax);
     analysis->SetH1Activation(id, false);
 
-    id = analysis->CreateH1("H17", "Decay_emission_spectrum_(0 - 1 MeV)",
+    id = analysis->CreateH1("H07", "Decay_emission_spectrum_(0 - 1 MeV)",
         nbins, vmin, vmax);
     analysis->SetH1Activation(id, false);
 
-    id = analysis->CreateH1("H18", "Decay_emission_spectrum_(0 - 0.1 MeV)",
+    id = analysis->CreateH1("H08", "Decay_emission_spectrum_(0 - 0.1 MeV)",
         nbins, vmin, vmax);
     analysis->SetH1Activation(id, false);
 
-    id = analysis->CreateH1("H19", "Energy_deposit_(MeV) in the absorber2", // same as 10 thing but can have different # of channels, range
+    id = analysis->CreateH1("H09", "Energy_deposit_(MeV) in the absorber2", // same as 00 thing but can have different # of channels, range
         nbins, vmin, vmax);
     analysis->SetH1Activation(id, false);
 
+    id = analysis->CreateH1("H10", "Energy_of_created_particles_of_selected_name", // User chooses name (e.g. "197Au" for recoil Au)
+        nbins, vmin, vmax);
+    analysis->SetH1Activation(id, false);
+
+    id = analysis->CreateH1("H11", "Number_of_created_particles_of_selected_name", // User chooses name (e.g. "197Au" for recoil Au)
+        nbins, vmin, vmax);
+    analysis->SetH1Activation(id, false);
     // nTuples
     //
     ////analysis->SetNtupleDirectoryName("ntuple");

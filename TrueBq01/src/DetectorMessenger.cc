@@ -31,11 +31,14 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #include "DetectorMessenger.hh"
-
+#include "Run.hh"
+#include "G4RunManager.hh"
 #include "DetectorConstruction.hh"
 #include "G4UIdirectory.hh"
 #include "G4UIcmdWithAString.hh"
 #include "G4UIcmdWithADoubleAndUnit.hh"
+#include "G4UIcmdWithADouble.hh"
+#include "G4UIcmdWithABool.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -45,7 +48,8 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction* Det)
 //2 Dir field and 6commands line fields
  detector(Det), fRdecayDir(0), fDetDir(0),
  fAbsorberMatCmd(0), fChipMatCmd(0), fAbsorberThicknessCmd(0),
- fChipThicknessCmd(0), fAbsorberSideCmd(0), fChipSideCmd(0), fActivitySideCmd(0), fActivityThicknessCmd(0)
+ fChipThicknessCmd(0), fAbsorberSideCmd(0), fChipLengthCmd(0), fChipWidthCmd(0), fActivitySideCmd(0), fActivityThicknessCmd(0), 
+ fEresCmd(0), fActivityZOffsetCmd(),fThetaMaxCmd(), fThetaMinCmd(), fEtailCmd(), fPtailCmd()
 { 
   fRdecayDir = new G4UIdirectory("/TrueBq01/");
   fRdecayDir->SetGuidance("commands specific to this example");
@@ -87,24 +91,94 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction* Det)
   fChipThicknessCmd->SetParameterName("choice",false);
   fChipThicknessCmd->AvailableForStates(G4State_PreInit);
 
-  fChipSideCmd =
-       new G4UIcmdWithADoubleAndUnit("/TrueBq01/det/setChipSide",this);//switch it to side
-  fChipSideCmd->SetGuidance("Set the Chip Side.");
-  fChipSideCmd->SetUnitCategory("Length");
-  fChipSideCmd->SetParameterName("choice",false);
-  fChipSideCmd->AvailableForStates(G4State_PreInit);
+  fChipWidthCmd =
+       new G4UIcmdWithADoubleAndUnit("/TrueBq01/det/setChipWidth",this);//width
+  fChipWidthCmd->SetGuidance("Set the Chip width.");
+  fChipWidthCmd->SetUnitCategory("Length");
+  fChipWidthCmd->SetParameterName("choice",false);
+  fChipWidthCmd->AvailableForStates(G4State_PreInit);
+
+  fChipLengthCmd =
+      new G4UIcmdWithADoubleAndUnit("/TrueBq01/det/setChipLength", this);//length
+  fChipLengthCmd->SetGuidance("Set the Chip length.");
+  fChipLengthCmd->SetUnitCategory("Length");
+  fChipLengthCmd->SetParameterName("choice", false);
+  fChipLengthCmd->AvailableForStates(G4State_PreInit);
 
   fActivityThicknessCmd = new G4UIcmdWithADoubleAndUnit("/TrueBq01/det/setActivityThickness", this);
   fActivityThicknessCmd->SetGuidance("Set the Activity Thickness.");
   fActivityThicknessCmd->SetUnitCategory("Length");
   fActivityThicknessCmd->SetParameterName("choice", false);
-  fActivityThicknessCmd->AvailableForStates(G4State_PreInit);
+  fActivityThicknessCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 
   fActivitySideCmd = new G4UIcmdWithADoubleAndUnit("/TrueBq01/det/setActivitySide", this);//switch it to side
   fActivitySideCmd->SetGuidance("Set the Activity Side.");
   fActivitySideCmd->SetUnitCategory("Length");
   fActivitySideCmd->SetParameterName("choice", false);
-  fActivitySideCmd->AvailableForStates(G4State_PreInit);
+  fActivitySideCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  fActivityZOffsetCmd = new G4UIcmdWithADoubleAndUnit("/TrueBq01/det/setActivityZOffset", this);// Z offset of activity center
+  fActivityZOffsetCmd->SetGuidance("Set the Activity Z offset.");
+  fActivityZOffsetCmd->SetUnitCategory("Length");
+  fActivityZOffsetCmd->SetParameterName("choice", false);
+  fActivityZOffsetCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  fThetaMaxCmd = new G4UIcmdWithADoubleAndUnit("/TrueBq01/det/setThetaMax", this);// max trajectory angle
+  fThetaMaxCmd->SetGuidance("Set the maximum angle");
+  fThetaMaxCmd->SetUnitCategory("Angle");
+  fThetaMaxCmd->SetParameterName("choice", false);
+  fThetaMaxCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  fThetaMinCmd = new G4UIcmdWithADoubleAndUnit("/TrueBq01/det/setThetaMin", this);// min trajectory angle
+  fThetaMinCmd->SetGuidance("Set the minimum angle");
+  fThetaMinCmd->SetUnitCategory("Angle");
+  fThetaMinCmd->SetParameterName("choice", false);
+  fThetaMinCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  fEresCmd = new G4UIcmdWithADoubleAndUnit("/TrueBq01/det/setEres", this);//energy resolution
+  fEresCmd->SetGuidance("Set the energy resolution");
+  fEresCmd->SetUnitCategory("Energy");
+  fEresCmd->SetParameterName("choice", false);
+  fEresCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  fEtailCmd = new G4UIcmdWithADoubleAndUnit("/TrueBq01/det/setEtail", this);//tail resolution
+  fEtailCmd->SetGuidance("Set the low energy tail");
+  fEtailCmd->SetUnitCategory("Energy");
+  fEtailCmd->SetParameterName("choice", false);
+  fEtailCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  fPtailCmd = new G4UIcmdWithADouble("/TrueBq01/det/setPtail", this);//tail prob
+  fPtailCmd->SetGuidance("Set the low energy tail prob");
+  fPtailCmd->SetParameterName("choice", false);
+  fPtailCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  fEtail2Cmd = new G4UIcmdWithADoubleAndUnit("/TrueBq01/det/setEtail2", this);//tail 2 resolution
+  fEtail2Cmd->SetGuidance("Set the low energy tail 2");
+  fEtail2Cmd->SetUnitCategory("Energy");
+  fEtail2Cmd->SetParameterName("choice", false);
+  fEtail2Cmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  fPtail2Cmd = new G4UIcmdWithADouble("/TrueBq01/det/setPtail2", this);//tail 2 prob
+  fPtail2Cmd->SetGuidance("Set the low energy tail 2 prob");
+  fPtail2Cmd->SetParameterName("choice", false);
+  fPtail2Cmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  fEtailHCmd = new G4UIcmdWithADoubleAndUnit("/TrueBq01/det/setEtailH", this);//tail 2 resolution
+  fEtailHCmd->SetGuidance("Set the low energy tail H");
+  fEtailHCmd->SetUnitCategory("Energy");
+  fEtailHCmd->SetParameterName("choice", false);
+  fEtailHCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  fPtailHCmd = new G4UIcmdWithADouble("/TrueBq01/det/setPtailH", this);//tail 2 prob
+  fPtailHCmd->SetGuidance("Set the low energy tail H prob");
+  fPtailHCmd->SetParameterName("choice", false);
+  fPtailHCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+
+  fParentOnlyCmd = new G4UIcmdWithABool("/TrueBq01/det/ParentOnly", this);
+  fParentOnlyCmd->SetGuidance("TRUE for parent only, no chain");
+  fParentOnlyCmd->SetParameterName("ParentOnly", false);
+  fParentOnlyCmd->AvailableForStates(G4State_PreInit, G4State_Idle); // check this
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -119,9 +193,20 @@ DetectorMessenger::~DetectorMessenger()
   delete fAbsorberThicknessCmd;
   delete fChipThicknessCmd;
   delete fAbsorberSideCmd;
-  delete fChipSideCmd;
+  delete fChipLengthCmd;
+  delete fChipWidthCmd;
   delete fDetDir;
   delete fRdecayDir;  
+  delete fEresCmd;
+  delete fEtailCmd;
+  delete fPtailCmd;
+  delete fEtail2Cmd;
+  delete fPtail2Cmd;
+  delete fEtailHCmd;
+  delete fPtailHCmd;
+  delete  fActivityZOffsetCmd;
+  delete fThetaMaxCmd;
+  delete fParentOnlyCmd;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -141,16 +226,21 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
     
   if (command == fChipMatCmd )
     {
-      detector->SetDetectorMaterial(newValue);}
+      detector->SetChipMaterial(newValue);}
     
-  if (command == fChipSideCmd ) 
+  if (command == fChipWidthCmd ) 
     {
-      detector->SetDetectorSide(
-                     fChipSideCmd->GetNewDoubleValue(newValue));}
+      detector->SetChipWidth(
+                     fChipWidthCmd->GetNewDoubleValue(newValue));}
 
+  if (command == fChipLengthCmd)
+  {
+      detector->SetChipLength(
+          fChipLengthCmd->GetNewDoubleValue(newValue));
+  }
   if (command == fChipThicknessCmd ) 
     {
-      detector->SetDetectorThickness(
+      detector->SetChipThickness(
                      fChipThicknessCmd->GetNewDoubleValue(newValue));}      
 
 
@@ -164,6 +254,55 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
       detector->SetActivityThickness(fAbsorberSideCmd->GetNewDoubleValue(newValue));
   }
 
+  if (command == fActivityZOffsetCmd)
+  {
+      detector->SetActivityZOffset(fActivityZOffsetCmd->GetNewDoubleValue(newValue));
+
+  }
+  if (command == fThetaMaxCmd)
+  {
+      detector->SetThetaMax(fThetaMaxCmd->GetNewDoubleValue(newValue));
+
+  }
+  if (command == fThetaMinCmd)
+  {
+      detector->SetThetaMin(fThetaMinCmd->GetNewDoubleValue(newValue));
+
+  }
+  if (command == fEresCmd) // pass energy resolution to the run
+  {
+      detector->SetEres(fEresCmd->GetNewDoubleValue(newValue));
+  }
+  if (command == fEtailCmd) // pass tail resolution to the run
+  {
+      detector->SetEtail(fEtailCmd->GetNewDoubleValue(newValue));
+  }
+  if (command == fPtailCmd) // pass tail prob
+  {
+      detector->SetPtail(fPtailCmd->GetNewDoubleValue(newValue));
+  }
+  if (command == fEtail2Cmd) // pass tail 2 resolution to the run
+  {
+      detector->SetEtail2(fEtail2Cmd->GetNewDoubleValue(newValue));
+  }
+  if (command == fPtail2Cmd) // pass tail 2 prob
+  {
+      detector->SetPtail2(fPtail2Cmd->GetNewDoubleValue(newValue));
+  }
+  if (command == fEtailHCmd) // pass tail H resolution to the run
+  {
+      detector->SetEtailH(fEtailHCmd->GetNewDoubleValue(newValue));
+  }
+  if (command == fPtailHCmd) // pass tail 2 prob
+  {
+      detector->SetPtailH(fPtailHCmd->GetNewDoubleValue(newValue));
+  }
+
+
+  if (command = fParentOnlyCmd)
+  {
+      detector->SetParentOnly(fParentOnlyCmd->GetNewBoolValue(newValue));
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

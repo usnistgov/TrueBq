@@ -51,12 +51,15 @@
 EventAction::EventAction(DetectorConstruction* det)
     :G4UserEventAction(),
     fEdep1(0.), fEdep2(0.), fWeight1(0.), fWeight2(0.), myTimer(0),timeSoFar(0.0),numberOfBeams(2),
-    eventID(0), fTime0(-1 * s),mydet(det) //time in radioactivity world
+    eventID(-1), fTime0(-1 * s),mydet(det),iParticleCount(0),fEparticle(0.),
+    myRes(0.),myTail(0.0), myPTail(0.0), myTail2(0.0), myPTail2(0.0), myTailH(0.0),myPTailH(0.0)//time in radioactivity world
 
 {
     myTimer = new G4Timer(); // create a timer to track wall clock time for the program
     myTimer->Start(); // note, timer must be stopped before reading it. restarting rezeroes.
     dtReal = 0.0; // for elapsed time
+    fEparticle = 0.0;
+    myRes = 0.0; // energy resolution
  
   }
 
@@ -91,6 +94,7 @@ void EventAction::BeginOfEventAction(const G4Event* event)
 {
     fEdep1 = fEdep2 = fWeight1 = fWeight2 = 0.;
     fTime0 = -1 * s;
+    iParticleCount = 0;
     
 }
 
@@ -109,6 +113,7 @@ void EventAction::AddEdep(G4int iVol, G4double edep,
     if (iVol == 1) { fEdep1 += edep; fWeight1 += edep * weight; }
     if (iVol == 2) { fEdep2 += edep; fWeight2 += edep * weight; }
 }
+
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -130,11 +135,26 @@ void EventAction::EndOfEventAction(const G4Event* event)
     // Hoover resolution around 0.6 keV. That is 7*sqrt(k_Boltzmann * Cv * detmass * Temp * Temp) (at 1.8 x 3.6 x 0.015 mm^3)
     // hardwire that in then add in quadrature expected thermal mass. (Assume most of observed resolution was due to crystals etc.)
     G4double Resolution = sqrt(k_Boltzmann * Cv * detmass * Temp * Temp); // 
-    Resolution = sqrt(Hoover_res*Hoover_res + Resolution*Resolution);
+    G4double Tail = 0.0;
+    G4double PTail = 0.0;
+    G4double Tail2 = 0.0;
+    G4double PTail2 = 0.0;
+    G4double TailH = 0.0;
+    G4double PTailH = 0.0;
+  //  Resolution = sqrt(Hoover_res * Hoover_res + Resolution * Resolution);
 
-    if (eventID == (numberOfBeams-1)) // print energy resolution of final event at the end of the run
+
+    Resolution = mydet->GetEres(); // From user.
+    Tail = mydet->GetEtail(); // From user.
+    PTail = mydet->GetPtail(); // From user.
+    Tail2 = mydet->GetEtail2(); // From user.
+    PTail2 = mydet->GetPtail2(); // From user.
+    TailH = mydet->GetEtailH(); // From user.
+    PTailH = mydet->GetPtailH(); // From user.
+ //   Resolution = 0.0; ;// temp
+    if (eventID == (numberOfBeams - 1)) // print energy resolution of final event at the end of the run
     {
-        G4cout << "vol/m3: " << detvol / m3 << ", mass/kg: " << detmass / kg << ", Res/eV: " << Resolution / eV << G4endl;
+        G4cout << "vol/m3_: " << detvol / m3 << ", mass/kg: " << detmass / kg << ", Res/eV: " << Resolution / eV << G4endl;
     }
 
     G4double E1res;
@@ -142,8 +162,43 @@ void EventAction::EndOfEventAction(const G4Event* event)
     G4double E2res;
 
     // Generate random gaussian noise. Distribution is centered on original energy, with distribution set by thermal noise
-    E1res = G4RandGauss::shoot(fEdep1, Resolution);
-    E2res = G4RandGauss::shoot(fEdep2, Resolution);
+
+    // Random noise shared by Absorber and Chip for now, so that sum spectrum matches event-by-event
+    G4double RandRes = G4RandGauss::shoot(0.0, Resolution);
+    G4double RandTail = 0.0; // exponential tail
+    G4double RandTail2 = 0.0; // exponential tail
+    G4double RandTailH = 0.0; // exponential tail
+    // G4cout << G4RandFlat::shoot() << "  "<<PTail<< G4endl;
+    if (G4RandFlat::shoot()<PTail) // decide whether tail event
+    {
+        RandTail = G4RandExponential::shoot(Tail); // exponential tail;
+    }
+    if (G4RandFlat::shoot() < PTail2) // decide whether tail event
+    {
+        RandTail2 = G4RandExponential::shoot(Tail2);
+    }
+    if (G4RandFlat::shoot() < PTailH) // decide whether tail event
+    {
+        RandTailH = G4RandExponential::shoot(TailH);
+    }
+    // If an event energy is < 2* Resolution, call energy zero. Not useful counts below there.
+    E1res = fEdep1;
+    if(E1res > 2.0 * Resolution)
+      E1res = fEdep1 + RandRes - RandTail - RandTail2 + RandTailH; // G4RandGauss::shoot(fEdep1, Resolution)
+    if (E1res < 2.0 * Resolution) E1res = 0;
+   
+
+    E2res = fEdep2;
+    if (E2res > 2.0 * Resolution)
+      E2res = fEdep2 + RandRes - RandTail - RandTail2 + RandTailH;
+    if (E2res < 2.0 * Resolution) E2res = 0;
+
+    // sum energies of the absorber and chip; would be nice to make spectra match by matching noise
+    G4double Etot = fEdep1 + fEdep2;
+    if (Etot > 2.0 * Resolution)
+        Etot = fEdep1 + fEdep2 + RandRes - RandTail - RandTail2 + RandTailH;
+    if (Etot < 2.0 * Resolution) Etot = 0;
+
 
     // G4cout << fEdep1 << " " << E1res << G4endl;
 
@@ -152,28 +207,29 @@ void EventAction::EndOfEventAction(const G4Event* event)
 
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
-    // sum energies of the absorber and chip
-    G4double Etot = fEdep1 + fEdep2;
-    G4double Wtot = (fWeight1 + fWeight2) / Etot;
+
 
     // pulse height in absorber
     //
-    if (fEdep1 > 0.) {
-        fWeight1 /= fEdep1;
-        analysisManager->FillH1(0, fEdep1, fWeight1);
-        analysisManager->FillH1(9, fEdep1, fWeight1);
+    if (fEdep1 >= 0.) {
+        analysisManager->FillH1(0, fEdep1);
+        analysisManager->FillH1(9, fEdep1);
+     //   G4cout << "Energy_dep = " << fEdep1 / MeV << G4endl;  // RPF temp
     }
 
     // pulse height in chip
     //   
-    if (fEdep2 > 0.) {
-        fWeight2 /= fEdep2;
-        analysisManager->FillH1(1, fEdep2, fWeight2);
+    if (fEdep2 >= 0.) {
+        analysisManager->FillH1(1, fEdep2);
     }
 
     // total
     //
-    analysisManager->FillH1(2, Etot, Wtot);
+    if (Etot >= 0.) {
+      analysisManager->FillH1(2, Etot);
+    }
+
+  //  G4cout << fEdep1 << ", " << fEdep2 << ", " << Etot <<G4endl;
 
     // threshold in absorber and chip        
     const G4double Threshold1(10 * keV), Threshold2(10 * keV);
@@ -184,9 +240,9 @@ void EventAction::EndOfEventAction(const G4Event* event)
     G4bool anti_coincidence1 = ((fEdep1 >= Threshold1) && (fEdep2 < Threshold2));
     G4bool anti_coincidence2 = ((fEdep1 < Threshold1) && (fEdep2 >= Threshold2));
 
-    if (coincidence)       analysisManager->FillH1(3, fEdep2, fWeight2);
-    if (anti_coincidence1) analysisManager->FillH1(4, fEdep1, fWeight1);
-    if (anti_coincidence2) analysisManager->FillH1(5, fEdep2, fWeight2);
+    if (coincidence)       analysisManager->FillH1(3, fEdep2);
+    if (anti_coincidence1) analysisManager->FillH1(4, fEdep1);
+    if (anti_coincidence2) analysisManager->FillH1(5, fEdep2);
 
     // pass energies to Run
     //  
@@ -195,13 +251,16 @@ void EventAction::EndOfEventAction(const G4Event* event)
 
     run->AddEdep(fEdep1, fEdep2);
 
+    // histogram the number of particles created over threshold
+    analysisManager->FillH1(11, iParticleCount);
+
     //number of event to run
     //minimum amount from printing
 
     // =========== PERIODIC PRINTING AND SAVING =============== //
 
     eventID = event->GetEventID();
-    if (numberOfBeams < 2) { numberOfBeams = 2; } // avoid div(0) error
+    if (numberOfBeams < 1) { numberOfBeams = 1; } // avoid div(0) error
     G4int previousProgress = (eventID) * 100 / (numberOfBeams); //previous progress -1 because getEvenID goes from 0-9 and not from 1-10
     G4int currentProgress = (eventID+1) * 100 / (numberOfBeams); //current progress
 
@@ -210,6 +269,7 @@ void EventAction::EndOfEventAction(const G4Event* event)
         numberOfBeams = G4RunManager::GetRunManager()->GetNonConstCurrentRun()->GetNumberOfEventToBeProcessed();
         
         sPrimary = event->GetPrimaryVertex()->GetPrimary()->GetParticleDefinition()->GetParticleName();
+        fEparticle = event->GetPrimaryVertex()->GetPrimary()->GetKineticEnergy();
         G4cout << "Primary: " << sPrimary<< G4endl;
         
 
@@ -221,7 +281,7 @@ void EventAction::EndOfEventAction(const G4Event* event)
             timestr.resize(timestr.size() - 1); // remove end-of-line char
         }
         G4cout << "Begin beamOn: " << numberOfBeams << "\tat " << timestr << " UTC" << G4endl;
-        G4cout << "Progress\tTime (UTC)\t\t\tdt\t\tt so far\tt remaining" << G4endl;
+        G4cout << "Prog\tTime (UTC)\t\tdt\t\tt so far\tt remain" << G4endl;
 
         myTimer->Start();
 
@@ -230,18 +290,19 @@ void EventAction::EndOfEventAction(const G4Event* event)
     // periodic status printing. The "&&" takes care of rounding issues
     else if ((currentProgress % 10 == 0 || currentProgress == 1 || currentProgress == 5) && currentProgress != previousProgress)
     {
-        G4cout << currentProgress << "%\t"; //line printing the progress bar on the command line
+       // G4cout << currentProgress << "%\t"; //line printing the progress bar on the command line
         myTimer->Stop();
         G4double dt = myTimer->GetRealElapsed();
         G4String timestr;
         timestr = myTimer->GetClockTime();
+  
         if (!timestr.empty()) {
-            timestr.resize(timestr.size() - 1); // remove end-of-line char
+            timestr.resize(timestr.size() - 6); // remove end-of-line char and year
         }
         timeSoFar += dt;
         G4double dt_remaining = dt * (100 - 1.0 * currentProgress) / (currentProgress * 1.0 - previousProgress * 1.0);
 
-        G4cout << currentProgress << "\t" << timestr << "\t" << niceTime(dt) << "\t" << niceTime(timeSoFar) << "\t" << niceTime(dt_remaining) << G4endl;
+        G4cout << currentProgress << "%\t" << timestr << "\t" << niceTime(dt) << "\t" << niceTime(timeSoFar) << "\t" << niceTime(dt_remaining) << G4endl;
         myTimer->Start();
 
         WriteAnAscii(); // write output so far
@@ -249,7 +310,18 @@ void EventAction::EndOfEventAction(const G4Event* event)
     }
 }
 
-
+void EventAction::SetParticleCount(G4int n)
+{
+    iParticleCount = n;
+}
+void EventAction::IncrementParticleCount()
+{
+    iParticleCount++;
+}
+G4int EventAction::GetParticleCount()
+{
+    return iParticleCount;
+}
 void EventAction::WriteAnAscii()
 {
     G4AnalysisManager* analysis = G4AnalysisManager::Instance();
@@ -265,7 +337,8 @@ void EventAction::WriteAnAscii()
             std::ofstream output; // write headder
             output.open(myName);
             output << "#title\t" << myh1d->get_title() << G4endl;
-            output << "#partle\t" << sPrimary<< G4endl;
+            output << "#partle\t" << sPrimary << G4endl;
+            output << "#E_MeV\t" << fEparticle << G4endl;
             output << "#absorb\t"<< mydet->GetAbsorberMaterial()->GetName() << G4endl;
             output << "#Abs s\t" << mydet->GetAbsorberSide() << G4endl;
             output << "#Abs t\t" << mydet->GetAbsorberThickness() << G4endl;
@@ -276,7 +349,7 @@ void EventAction::WriteAnAscii()
             // Write the number of events so far and the total number of beams set. Use scientific notation
             
             std::ios_base::fmtflags oldflags = output.flags(); // original formatting
-            output << "#n_done\t" << std::scientific << 1.0*(myh1d->all_entries()) << G4endl;
+            output << "#n_done\t" << std::scientific << 1.0*(eventID + 1) << G4endl;
             output << "#n_set\t" << 1.0*numberOfBeams << G4endl;
     
            // WRITE SPECTRUM 
@@ -314,5 +387,7 @@ void EventAction::WriteAnAscii()
         }
     }
 }
+
+
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

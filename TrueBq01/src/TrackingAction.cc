@@ -31,7 +31,6 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #include "TrackingAction.hh"
-
 #include "DetectorConstruction.hh"
 #include "Run.hh"
 #include "HistoManager.hh"
@@ -41,11 +40,12 @@
 #include "G4HadronicProcessType.hh"
 
 #include "G4SystemOfUnits.hh"
+#include "G4Radioactivation.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-TrackingAction::TrackingAction(DetectorConstruction* det)
-:G4UserTrackingAction(), fChip(det)
+TrackingAction::TrackingAction(DetectorConstruction* det, EventAction *evt)
+:G4UserTrackingAction(), fDet(det), eventAct(evt)
 { }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -56,18 +56,31 @@ void TrackingAction::PreUserTrackingAction(const G4Track* track)
   Run* run = static_cast<Run*>(
         G4RunManager::GetRunManager()->GetNonConstCurrentRun());    
   
+  
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
 
   //which volume ?
   //
   G4LogicalVolume* lVolume = track->GetVolume()->GetLogicalVolume();
   G4int iVol = 0;
-  if (lVolume == fChip->GetLogicAbsorber())   iVol = 1;
-  if (lVolume == fChip->GetLogicDetector()) iVol = 2;
+  if (lVolume == fDet->GetLogicAbsorber()) iVol = 1;
+  if (lVolume == fDet->GetLogicChip()) iVol = 2;
     
   //secondary particles only
   if (track->GetTrackID() == 1) return;
+
   
+ /* int len = track->GetParticleDefinition()->GetProcessManager()->GetProcessList()->length();
+  for (int i = 0; i < len; i++)
+  {
+  }*/
+//      G4cout << "HEREHERE " << track->GetParticleDefinition()->GetProcessManager()->GetProcess("Radioactivation") << G4endl;
+//  
+//      G4Radioactivation * rf = new G4Radioactivation();
+//      rf = track->GetParticleDefinition()->GetProcessManager()->GetProcess("Radioactivation")
+////G4NucleusLimits mylim(241,241,95,95);
+////rf->SetNucleusLimits(mylim);
+
   const G4ParticleDefinition* particle = track->GetParticleDefinition();  
   G4String name   = particle->GetParticleName();
   G4int pid       = particle->GetPDGEncoding();
@@ -77,9 +90,19 @@ void TrackingAction::PreUserTrackingAction(const G4Track* track)
   G4double energy = track->GetKineticEnergy();
   G4double time   = track->GetGlobalTime();
   G4double weight = track->GetWeight();
-  
+  G4String type = particle->GetParticleType();
+
+
   run->ParticleCount(name,energy,iVol);
+
+  G4double Ethreshold = 28. * eV; // 34 eV for Au, 24 eV for Si
   
+  if (type = "gamma") // options = gamma, nucleus, lepton...
+  {
+      analysisManager->FillH1(10, energy); // histogram initial energy of created particles of a given name
+      if (energy > Ethreshold) eventAct->IncrementParticleCount();
+  }
+ 
   //Radioactive decay products
   G4int processType = track->GetCreatorProcess()->GetProcessSubType();
   if (processType == fRadioactiveDecay) {
