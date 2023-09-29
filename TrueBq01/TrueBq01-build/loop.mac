@@ -1,0 +1,3 @@
+/gun/energy {eKin} keV
+/analysis/setFileName {basename}{eKin}
+/run/beamOn {nbeams}

@@ -1,0 +1,163 @@
+
+# vis.mac for TrueBq01, as modified by RF 2022
+#
+# Sets some default verbosity
+
+#
+/control/verbose 2
+/run/verbose 2
+
+
+# DEFINE GEOMETRY PRIOR TO "/run/initialize"
+
+/TrueBq01/det/setAbsorberMate G4_Au # G4_Au, G4_Galactic
+
+/TrueBq01/det/setAbsorberThickness 30 um  # 97 um
+/TrueBq01/det/setAbsorberSide  1500 um # 935 um
+
+/TrueBq01/det/setActivityThickness 0 um  # 80 um
+/TrueBq01/det/setActivitySide 0 um # 900 um
+
+/TrueBq01/det/setActivityZOffset 0 mm # 25 mm for external source
+
+/TrueBq01/det/setThetaMin 0 deg # 179 stays on 1 mm Au, 173 ~ fills chip
+/TrueBq01/det/setThetaMax 180 deg
+
+/TrueBq01/det/setChipThickness 275 um # 275 um
+/TrueBq01/det/setChipLength 5.0 mm # 5.0 mm
+/TrueBq01/det/setChipWidth 5.0 mm # 3.0 mm
+
+/TrueBq01/det/setEres 0.0 keV 	# gaussian energy resolution 0.65 keV
+
+/TrueBq01/det/setEtail 0.001 keV # res of low energy tail 0.85 keV
+/TrueBq01/det/setPtail 0.00000001  	# Prob of low energy tail 0.2
+
+/TrueBq01/det/setEtail2 0.001 keV # res of low energy tail2 3.0 keV
+/TrueBq01/det/setPtail2 0.000000001  	# Prob of low energy tail2 0.02
+
+/TrueBq01/det/setEtailH 3.3 keV # res of high energy tailH 3.0 keV
+/TrueBq01/det/setPtailH 0.000000001 	# Prob of high energy tailH 0.02
+
+
+
+# /cuts/setLowEdge 100 keV
+
+/run/initialize
+#
+# Use this open statement to create an OpenGL view:
+/vis/open OGL 600x600-0+0
+#
+
+# Disable auto refresh and quieten vis messages whilst scene and
+# trajectories are established:
+/vis/viewer/set/autoRefresh false
+/vis/verbose errors
+#
+# Draw geometry:
+/vis/drawVolume
+#
+# Specify view angle:
+#/vis/viewer/set/viewpointThetaPhi 90 0.
+#/vis/viewer/set/viewpointVector 1 0 0
+ /vis/viewer/set/viewpointVector 0 1 -.0001 # side view
+/vis/viewer/set/lightsVector 1 1 .4
+#/vis/viewer/set/viewpointVector -.08 -.25 .2 # isometric
+#/vis/viewer/set/lightsVector -1 -1 .5
+
+/vis/viewer/pan 1  0 mm # pan ~ to center of source
+
+#
+# Specify zoom value:
+/vis/viewer/zoomTo 1
+#
+# Specify style (surface (s) or wireframe (w)):
+/vis/viewer/set/style w
+
+#
+# Draw coordinate axes:
+#/vis/scene/add/axes 0 0 0 1 mm red
+# Draw scale
+# /vis/scene/add/scale 11 um z 1 0 0 manual 30 0 5.5 um
+
+# SET COLOR OF OBJECTS
+/vis/viewer/set/background .9 .9 .85 
+# forceWireframe forceSolid
+/vis/geometry/set/visibility World 0 false
+/vis/geometry/set/forceWireframe World 1
+/vis/geometry/set/forceSolid Chip 1
+/vis/geometry/set/forceWireframe Absorber 1
+/vis/geometry/set/forceSolid TES 1
+/vis/geometry/set/colour World 0 0 0 0 1  # depth R G B Opacity
+/vis/geometry/set/colour Chip 0 .558 .354 .055 1  # depth R G B Opacity
+/vis/geometry/set/colour Absorber 0 0.941 0.702 0.141 1   # depth R G B Opacity
+/vis/geometry/set/colour TES 0 0.91 0.50 0.34 1   # depth R G B Opacity
+
+
+#
+# Draw smooth trajectories at end of event, showing trajectory points
+# as markers 2 pixels wide:
+/vis/scene/add/trajectories smooth
+/vis/modeling/trajectories/create/drawByCharge
+/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true
+/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2
+# (if too many tracks cause core dump => /tracking/storeTrajectory 0)
+#
+# Draw hits at end of event:
+#/vis/scene/add/hits
+#
+# To draw only gammas:
+#/vis/filtering/trajectories/create/particleFilter
+#/vis/filtering/trajectories/particleFilter-0/add gamma
+#
+# To invert the above, drawing all particles except gammas,
+# keep the above two lines but also add:
+#/vis/filtering/trajectories/particleFilter-0/invert true
+#
+# Many other options are available with /vis/modeling and /vis/filtering.
+# For example, to select colour by particle ID:
+/vis/modeling/trajectories/create/drawByParticleID
+/vis/modeling/trajectories/drawByParticleID-0/set e- red
+/vis/modeling/trajectories/drawByParticleID-0/set gamma green
+/vis/modeling/trajectories/drawByParticleID-0/set neutron yellow
+/vis/modeling/trajectories/drawByParticleID-0/set alpha blue
+/vis/modeling/trajectories/drawByParticleID-0/set Si28 lightblue
+#
+# To superimpose all of the events from a given run:
+/vis/scene/endOfEventAction accumulate -1
+#
+# Re-establish auto refreshing and verbosity:
+/vis/viewer/set/autoRefresh true
+/vis/verbose warnings
+#
+# For file-based drivers, use this to create an empty detector view:
+#/vis/viewer/flush
+
+# SOME DECAY PHYSICS OPTIONS
+/process/had/rdm/applyICM true # internal electron conversion
+/process/had/rdm/applyARM true # atomic rearangment model. 
+/process/em/lowestElectronEnergy 1 keV # default 1 keV; 0.1 keV for opt3, 4, , liv, pen
+
+#/gun/particle gamma
+#/gun/particle alpha
+#/gun/energy 5.5 MeV
+/gun/particle ion
+/TrueBq01/det/ParentOnly 1  # only parent decays. no chains.
+#/gun/ion 2 4 # He-4
+#/gun/ion 95 241 # Am-241
+#/gun/ion 94 241 # Pu-241
+#/gun/ion 64 153 # Gd-153
+
+
+/gun/ion 95 241 # Am-241
+/analysis/setFileName Am241
+/analysis/h1/set 0 600 5.4 5.7 MeV
+/analysis/h1/set 0 600 5.4 5.7 MeV
+/analysis/h1/set 0 600 5.4 5.7 MeV
+
+#
+/process/had/rdm/applyICM true
+/process/had/rdm/applyARM true
+/process/had/rdm/hlThreshold 1 s
+#/process/em/setSecBiasing eBrem Absorber 1 10 MeV
+#/run/beamOn 10
+

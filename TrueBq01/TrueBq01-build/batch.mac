@@ -1,0 +1,154 @@
+# Batch file for TrueBq01, as modified by RF 2021
+#
+# Sets some default verbosity
+
+/control/verbose 0
+/run/verbose 1
+/event/verbose 0
+/tracking/verbose 0
+
+
+# DEFINE GEOMETRY PRIOR TO "/run/initialize"
+
+/TrueBq01/det/setAbsorberMate G4_Au # G4_Au, G4_Galactic
+
+/TrueBq01/det/setAbsorberThickness 30 um  # 97 um
+/TrueBq01/det/setAbsorberSide  1500 um # 935 um
+
+/TrueBq01/det/setActivityThickness 0 um  # 80 um
+/TrueBq01/det/setActivitySide 0 um # 900 um
+
+/TrueBq01/det/setActivityZOffset 0 mm # 25 mm for external source
+
+/TrueBq01/det/setThetaMin 0 deg # 179 stays on 1 mm Au, 173 ~ fills chip
+/TrueBq01/det/setThetaMax 180 deg
+
+/TrueBq01/det/setChipThickness 275 um # 275 um
+/TrueBq01/det/setChipLength 5.0 mm # 5.0 mm
+/TrueBq01/det/setChipWidth 5.0 mm # 3.0 mm
+
+/TrueBq01/det/setEres 3 keV 	# gaussian energy resolution 0.65 keV
+
+/TrueBq01/det/setEtail .001 keV # res of low energy tail 0.85 keV
+/TrueBq01/det/setPtail 0.00001  	# Prob of low energy tail 0.2
+
+/TrueBq01/det/setEtail2 0.001 keV # res of low energy tail2 3.0 keV
+/TrueBq01/det/setPtail2 0.000000001  	# Prob of low energy tail2 0.02
+
+/TrueBq01/det/setEtailH .001 keV # res of high energy tailH 3.0 keV
+/TrueBq01/det/setPtailH 0.0000001	# Prob of high energy tailH 0.02
+
+
+
+# Em options, set in PhysicsList or here.
+
+#/process/em/fluo true
+#/process/em/auger true
+#/process/em/augerCascade true 
+#/process/em/pixe true
+#/process/em/lowestElectronEnergy 10 keV # default 1 keV; 0.1 keV for opt3, 4, , liv, pen
+#
+/run/initialize
+#
+
+
+# choose particle (ion, alpha, e-, gamma)
+# choose ion for radioactive decay
+
+/gun/particle ion 
+/gun/energy 0 MeV
+/TrueBq01/det/ParentOnly TRUE  # only parent decays. no chains.
+
+#/gun/particle gamma
+#/gun/energy 100 keV
+
+# Example usage: Z A Q E_level
+#/gun/ion 95 241 	# Am-241
+#/gun/ion 43 99 1 143.	# Tc-99m (143 keV state)
+
+# USER DATA FILES (only used as needed)
+/process/had/rdm/setPhotoEvaporationFile 92 235 UserEvapData_z92.a235
+/process/had/rdm/setPhotoEvaporationFile 90 229 UserEvapData_z90.a229
+
+
+# MUST SET A FILE NAME AND HISTOGRAM. CAN CHANGE LATER.
+/analysis/setFileName myName
+/analysis/h1/set 0 4000 0 1 MeV	# ID Nchannels Elow Ehigh Unit
+#
+# SOME DECAY PHYSICS OPTIONS
+/process/had/rdm/applyICM true # internal electron conversion
+/process/had/rdm/applyARM true # atomic rearangment model. 
+#/process/had/rdm/hlThreshold 1 ps # max level tau as non-metastable
+
+
+### EXAMPLES ###
+
+
+#/analysis/h1/set 0 7000 0 1.4 MeV
+
+#/gun/ion 42 99 # Mo-99
+#/analysis/setFileName Mo-99
+#/run/beamOn 1000
+
+#/gun/ion 43 99 0 142 # Tc-99m
+#/analysis/setFileName Tc-99m
+#/run/beamOn 1000000
+
+
+#/analysis/h1/set 0 500 5.2 5.3 MeV
+
+#/gun/ion 94 238 # Pu-238
+#/analysis/setFileName Pu-238
+#/run/beamOn 1000000
+
+#/gun/ion 94 239 # Pu-239
+#/analysis/setFileName Pu-239
+#/run/beamOn 100
+
+#/gun/ion 94 240 # Pu-240
+#/analysis/setFileName Pu-240
+#/run/beamOn 1000000
+
+#/gun/ion 94 242 # Pu-242
+#/analysis/setFileName Pu-242
+#/run/beamOn 1000000
+
+#/gun/ion 95 241 # Am-241
+#/analysis/setFileName Am-241
+#/run/beamOn 1000000
+
+#/gun/ion 92 235 # U-235
+#/analysis/h1/set 0 5000 3.9 4.9 MeV
+#/analysis/setFileName U-235
+#/run/beamOn 1000000
+
+
+#/gun/ion 94 241 # Pu-241
+#/analysis/setFileName Pu-241
+#/analysis/h1/set 0 500 0.0 0.1 MeV
+#/run/beamOn 1000000
+
+
+/gun/ion 95 241 # Am-241
+/analysis/setFileName Am241
+/analysis/h1/set 0 600 5.4 5.7 MeV
+/analysis/h1/set 0 600 5.4 5.7 MeV
+/analysis/h1/set 0 600 5.4 5.7 MeV
+/run/beamOn 1000000
+
+#/gun/ion 90 227 # Th-227
+#/analysis/setFileName Th-227
+#/analysis/h1/set 0 4000 0 10.0 MeV
+#/analysis/h1/set 1 4000 0 10.0 MeV
+#/analysis/h1/set 2 4000 0 10.0 MeV
+#/run/beamOn 10
+
+#/gun/ion 64 153 # Gd-153
+#/analysis/setFileName Gd153
+#/analysis/h1/set 0 500 0 200 keV	
+#/run/beamOn 16000000
+
+#/gun/ion 27 57 # Co-57
+#/analysis/setFileName Co57
+#/analysis/h1/set 0 500 0 200 keV	
+#/run/beamOn 16000000

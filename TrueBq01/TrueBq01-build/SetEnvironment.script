@@ -1,0 +1,13 @@
+export G4ANALYSIS_USE=1
+export G4ABLADATA=/cygdrive/c/Geant4/geant4.10.7.2-install/share/Geant4-10.7.2/data/G4ABLA3.1
+export G4INCLDATA=/cygdrive/c/Geant4/geant4.10.7.2-install/share/Geant4-10.7.2/data/G4INCL1.0
+export G4LEDATA=/cygdrive/c/Geant4/geant4.10.7.2-install/share/Geant4-10.7.2/data/G4EMLOW7.13
+export G4LEVELGAMMADATA=/cygdrive/c/Geant4/geant4.10.7.2-install/share/Geant4-10.7.2/data/PhotonEvaporation5.7
+export G4NEUTRONHPDATA=/cygdrive/c/Geant4/geant4.10.7.2-install/share/Geant4-10.7.2/data/G4NDL4.6
+export G4PARTICLEXSDATA=/cygdrive/c/Geant4/geant4.10.7.2-install/share/Geant4-10.7.2/data/G4PARTICLEXS3.1.1
+export G4PIIDATA=/cygdrive/c/Geant4/geant4.10.7.2-install/share/Geant4-10.7.2/data/G4PII1.3
+export G4RADIOACTIVEDATA=/cygdrive/c/Geant4/geant4.10.7.2-install/share/Geant4-10.7.2/data/RadioactiveDecay5.6
+export G4REALSURFACEDATA=/cygdrive/c/Geant4/geant4.10.7.2-install/share/Geant4-10.7.2/data/RealSurface2.2
+export G4SAIDXSDATA=/cygdrive/c/Geant4/geant4.10.7.2-install/share/Geant4-10.7.2/data/G4SAIDDATA2.0
+export Geant4_DIR=/cygdrive/c/Geant4/geant4.10.7.2-install/lib/Geant4-10.7.2
+export PATH=$PATH:/cygdrive/c/Geant4/geant4.10.7.2-install/bin:/cygdrive/c/Qt/5.15.2/msvc2019_64/bin
