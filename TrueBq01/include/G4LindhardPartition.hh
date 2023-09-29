@@ -23,51 +23,46 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-/// \file RunAction.hh
-/// \brief Definition of the RunAction class
-//
-//
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+/*
+ *  \file electromagnetic/TestEm7/include/G4LindhardPartition.hh
+ *  \brief Definition of the G4LindhardPartition class
+ *
+ *  Created by Marcus Mendenhall on 1/14/08.
+ *  2008 Vanderbilt University, Nashville, TN, USA.
+ *
+ */
 
-#ifndef RunAction_h
-#define RunAction_h 1
+//
 
-#include "G4UserRunAction.hh"
 #include "globals.hh"
-#include "RunActionMessenger.hh"
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+class G4Material;
 
-class DetectorConstruction;
-class Run;
-class PrimaryGeneratorAction;
-class HistoManager;
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-class RunAction : public G4UserRunAction
+class G4VNIELPartition 
 {
-  public:
-    RunAction(DetectorConstruction*, PrimaryGeneratorAction*);
-   ~RunAction();
-
-  public:
-    virtual G4Run* GenerateRun();  
-    virtual void BeginOfRunAction(const G4Run*);
-    virtual void   EndOfRunAction(const G4Run*);
-    HistoManager* GetHistoManager(void);
-                            
-  private:
-    DetectorConstruction*      mydet;
-    PrimaryGeneratorAction*    fPrimary;
-    Run*                       fRun;    
-    HistoManager*              fHistoManager;
-    RunActionMessenger*        fRunMessenger; // don't need header?
+public:
+        G4VNIELPartition() { }
+        virtual ~G4VNIELPartition() { }
         
+        // return the fraction of the specified energy which will be deposited as NIEL
+        // if an incoming particle with z1, a1 is stopped in the specified material
+        // a1 is in atomic mass units, energy in native G4 energy units.
+        virtual G4double PartitionNIEL(
+                G4int z1, G4double a1, const G4Material *material, G4double energy
+        ) const =0;
 };
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-#endif
+class G4LindhardRobinsonPartition : public G4VNIELPartition
+{
+public:
+        G4LindhardRobinsonPartition();
+        virtual ~G4LindhardRobinsonPartition() { }
+        
+        virtual G4double PartitionNIEL(
+                G4int z1, G4double a1, const G4Material *material, G4double energy
+        ) const ;
+        
+        G4double z23[120];
+        size_t   max_z;
+};
 

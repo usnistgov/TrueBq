@@ -40,6 +40,9 @@ class DetectorConstruction;
 class G4UIdirectory;
 class G4UIcmdWithAString;
 class G4UIcmdWithADoubleAndUnit;
+class G4UIcmdWithADouble;
+class G4UIcmdWithABool;
+
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -65,10 +68,24 @@ class DetectorMessenger: public G4UImessenger
     G4UIcmdWithADoubleAndUnit* fAbsorberThicknessCmd;
     G4UIcmdWithADoubleAndUnit* fChipThicknessCmd;
     G4UIcmdWithADoubleAndUnit* fAbsorberSideCmd;
-    G4UIcmdWithADoubleAndUnit* fChipSideCmd;  
+    G4UIcmdWithADoubleAndUnit* fChipWidthCmd;  
+    G4UIcmdWithADoubleAndUnit* fChipLengthCmd;
+
+    G4UIcmdWithADoubleAndUnit* fActivityZOffsetCmd;
+    G4UIcmdWithADoubleAndUnit* fThetaMaxCmd;
+    G4UIcmdWithADoubleAndUnit* fThetaMinCmd;
 
     G4UIcmdWithADoubleAndUnit* fActivitySideCmd;
     G4UIcmdWithADoubleAndUnit* fActivityThicknessCmd;
+    G4UIcmdWithADoubleAndUnit* fEresCmd; // energy resolution
+    G4UIcmdWithADoubleAndUnit* fEtailCmd; // energy resolution
+    G4UIcmdWithADouble* fPtailCmd; // energy resolution
+    G4UIcmdWithADoubleAndUnit* fEtail2Cmd; // energy resolution
+    G4UIcmdWithADouble* fPtail2Cmd; // energy resolution
+    G4UIcmdWithADoubleAndUnit* fEtailHCmd; // energy resolution
+    G4UIcmdWithADouble* fPtailHCmd; // energy resolution
+
+    G4UIcmdWithABool* fParentOnlyCmd; // limit rad decay to parent (main nuclide)
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

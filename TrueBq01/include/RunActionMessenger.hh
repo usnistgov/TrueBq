@@ -1,4 +1,7 @@
 //
+
+// NOT USED - RPF 2022_01_20 - started implementing then realized better to just go through detector since initialized first
+//
 // ********************************************************************
 // * License and Disclaimer                                           *
 // *                                                                  *
@@ -23,63 +26,46 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-/// \file PrimaryGeneratorAction.hh
-/// \brief Definition of the PrimaryGeneratorAction class
+/// \file electromagnetic/TestEm3/include/RunActionMessenger.hh
+/// \brief Definition of the RunActionMessenger class
 //
 //
-//
-// 
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-#ifndef PrimaryGeneratorAction_h
-#define PrimaryGeneratorAction_h 1
+#ifndef RunActionMessenger_h
+#define RunActionMessenger_h 1
 
-#include "G4VUserPrimaryGeneratorAction.hh"
-#include "G4ParticleGun.hh"
 #include "globals.hh"
-#include "DetectorConstruction.hh"
-#include "G4ThreeVector.hh"
+#include "G4UImessenger.hh"
+#include "G4UIcmdWithADoubleAndUnit.hh"
+#include "G4UIcmdWithABool.hh"
 
-class G4Event;
+class RunAction;
+class G4UIdirectory;
+class G4UIcommand;
+class G4UIcmdWithABool;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
+class RunActionMessenger : public G4UImessenger
 {
 public:
-    PrimaryGeneratorAction(DetectorConstruction*);
-    ~PrimaryGeneratorAction();
+    RunActionMessenger(RunAction*);
+    virtual ~RunActionMessenger();
 
-public:
-    virtual void GeneratePrimaries(G4Event*);
-    G4ParticleGun* GetParticleGun() { return fParticleGun; };
+    void SetNewValue(G4UIcommand*, G4String);
 
 private:
-    G4ParticleGun* fParticleGun;        //pointer a to G4 service class
+    RunAction* fRunAction;
 
-    G4double dirThetaMin;           // for selecting random angles
-    G4double dirThetaMax;           // for selecting random angles
-    G4double cosb;                  // = cos(dirThetaMax);					
-    G4double cosa;                  // = cos(dirThetaMin) - cosb;	
-
-    G4double dirPhiMin;
-    G4double dirPhiMax;
+    G4UIdirectory* fRunDir;
+    G4UIcmdWithADoubleAndUnit* fResCmd;
 
 
-    G4double sinTheta;
-    G4double cosTheta;
-    DetectorConstruction* myDetector;
-
-    G4double ActivityThickness;
-    G4double ActivitySide;
-    G4double ActivityZOffset;
-    G4ThreeVector ActivityCenter;
 
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif
-

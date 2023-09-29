@@ -23,69 +23,45 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-/// \file EventAction.hh
-/// \brief Definition of the EventAction class
+/// \file electromagnetic/TestEm7/include/PhysListEmStandardNR.hh
+/// \brief Definition of the PhysListEmStandardNR class
 //
-// 
-
+//
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-#ifndef EventAction_h
-#define EventAction_h 1
+#ifndef PhysListEmStandardNR_h
+#define PhysListEmStandardNR_h 1
 
-#include "G4UserEventAction.hh"
-#include "DetectorConstruction.hh"
+#include "G4VPhysicsConstructor.hh"
 #include "globals.hh"
-#include "G4timer.hh"
-#include "G4ThreeVector.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-class EventAction : public G4UserEventAction
+class PhysListEmStandardNR : public G4VPhysicsConstructor
 {
-  public:
-    EventAction(DetectorConstruction*);
-   ~EventAction();
+public: 
+  PhysListEmStandardNR(const G4String& name = "standardNR");
+ ~PhysListEmStandardNR();
 
-  public:
-    virtual void BeginOfEventAction(const G4Event*);
-    virtual void   EndOfEventAction(const G4Event*);
-    void WriteAnAscii();
-    
-    void AddEdep (G4int iVol, G4double Edep, G4double time, G4double weight);
-    void SetParticleCount(G4int n);
-    void IncrementParticleCount();
-    G4int GetParticleCount();
-    G4int GeteventID() { return eventID; };
-  private:
-    DetectorConstruction* mydet;
-    G4double dtReal; // real clock time elapsed for progress bar
-    G4double fEdep1,   fEdep2;
-    G4double fWeight1, fWeight2;
+public: 
+  // This method is dummy for physics
+  virtual void ConstructParticle() {};
  
-    G4double fEparticle; // energy of created particle
-    G4String sParticleName; // chosen particle name to histogram
-    G4double fTime0; 
-    G4Timer * myTimer;
-    G4double timeSoFar;
-    G4int numberOfBeams; // number of beams to run
-    G4String niceTime(G4int tsec);
-    G4int eventID;
-    G4String sPrimary; // name of primary particle
-    G4double  myRes; // resolution set by user
-    G4double myTail; // tail set by user
-    G4double myPTail; // tail set by user
-    G4double myTail2; // tail set by user
-    G4double myPTail2; // tail set by user
-    G4double myTailH; // tail set by user
-    G4double myPTailH; // tail set by user
-
-    G4int iParticleCount;
+  // This method will be invoked in the Construct() method.
+  // each physics process will be instantiated and
+  // registered to the process manager of each particle type 
+  virtual void ConstructProcess();
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif
 
-    
+
+
+
+
+
+
+

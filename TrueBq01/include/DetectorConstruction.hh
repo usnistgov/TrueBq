@@ -36,10 +36,12 @@
 
 #include "G4VUserDetectorConstruction.hh"
 #include "globals.hh"
+#include "G4ThreeVector.hh"
 
 class G4LogicalVolume;
 class G4Material;
 class DetectorMessenger;
+class G4UserLimits;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -60,13 +62,19 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     void SetActivityThickness(G4double value);
     G4double GetActivityThickness();
 
+    void SetActivityZOffset(G4double value); // e.g. for external source
+    void SetThetaMax(G4double value);
+    void SetThetaMin(G4double value);
+
     void SetAbsorberSide (G4double value);
     void SetAbsorberThickness (G4double value);
     void SetAbsorberMaterial (G4String);
-    
-    void SetDetectorSide(G4double value);           
-    void SetDetectorThickness(G4double value);  
-    void SetDetectorMaterial(G4String);               
+   
+
+    void SetChipWidth(G4double value);
+    void SetChipLength(G4double value);           
+    void SetChipThickness(G4double value);  
+    void SetChipMaterial(G4String);               
                    
     void PrintParameters();
     
@@ -76,25 +84,80 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     G4double GetAbsorberThickness();
     G4Material* GetAbsorberMaterial();       
     G4LogicalVolume* GetLogicAbsorber();
-    
-    G4double GetDetectorSide();
-    G4double GetDetectorThickness();
-    G4Material* GetDetectorMaterial();                 
-    G4LogicalVolume* GetLogicDetector();      
+    G4double GetAbsorberXOffset();
+    G4ThreeVector GetAbsorberCenter();
+
+    G4double GetActivityZOffset(); // e.g. for external source
+    G4double GetThetaMax(); 
+    G4double GetThetaMin();
+
+    G4double GetChipWidth();
+    G4double GetChipLength();
+    G4double GetChipThickness();
+    G4Material* GetChipMaterial();                 
+    G4LogicalVolume* GetLogicChip(); 
+    G4LogicalVolume* GetLogicTES();
+
+    G4double GetEres();
+    void SetEres(G4double);
+
+    G4double GetEtail();
+    void SetEtail(G4double);
+    G4double GetPtail();
+    void SetPtail(G4double);
+
+    G4double GetEtail2();
+    void SetEtail2(G4double);
+    G4double GetPtail2();
+    void SetPtail2(G4double);
+
+    G4double GetEtailH();
+    void SetEtailH(G4double);
+    G4double GetPtailH();
+    void SetPtailH(G4double);
+
+    void SetParentOnly(G4bool val);
+    G4bool GetParentOnly();
+
                        
   private:
   
+    G4String myParticleName; // for histogramming recoil atoms
     G4double            fActivityThickness; // activity region
     G4double            fActivitySide;      
     G4double           fAbsorberSide; 
     G4double           fAbsorberThickness;
     G4Material*        fAbsorberMater;
+    G4Material*         fSMater;
     G4LogicalVolume*   fLogicAbsorber;
-                 
-    G4double           fChipSide;
+
+    G4double fEres; // energy resolution
+    G4double fEtail; // low energy tail res
+    G4double fPtail; // low energy tail prob
+    G4double fEtail2; // low energy tail res
+    G4double fPtail2; // low energy tail prob
+    G4double fEtailH; // low energy tail res
+    G4double fPtailH; // low energy tail prob
+
+    G4double fAbsorberXOffset;
+    G4double fTESside;
+    G4double fTESThickness;
+    G4double fTESXOffset;
+    G4ThreeVector AbsorberCenter;
+    G4double flegThickness;
+    G4double fChipBorderThickness;
+
+    G4double fActivityZOffset; 
+    G4double fThetaMax; // for primary generator trajectories
+    G4double fThetaMin; // for primary generator trajectories
+    G4Material* fTESMater;
+
+    G4double           fChipWidth;
+    G4double           fChipLength;
     G4double           fChipThickness;
     G4Material*        fChipMater;
     G4LogicalVolume*   fLogicChip;
+    G4LogicalVolume*   fLogicTES;
                
     G4double           fWorldSide;
     G4double           fWorldThickness;
@@ -102,6 +165,10 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     G4VPhysicalVolume* fPhysiWorld;
                 
     DetectorMessenger* detectorMessenger;
+
+    G4bool  ParentOnly; // limit rad decay to parent
+
+    G4UserLimits* fStepLimit = nullptr; // pointer to user step limits
 
   private:
     

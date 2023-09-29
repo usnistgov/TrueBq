@@ -58,7 +58,9 @@ class Run : public G4Run
     virtual void Merge(const G4Run*);
     void EndOfRun();
     void WriteActivity(G4int);     
-   
+    void SetEres(G4double);
+    G4double GetEres();
+
   private:
     struct ParticleData {
      ParticleData()
@@ -77,12 +79,16 @@ class Run : public G4Run
     G4double              fEkin;
     
     G4double fEdepAbsorber, fEdepAbsorber2;
-    G4double fEdepDetect, fEdepDetect2;    
+    G4double fEdepDetect, fEdepDetect2;   
+
      
     std::map<G4String,G4int>        fProcCounter1;
     std::map<G4String,G4int>        fProcCounter2;    
     std::map<G4String,ParticleData> fParticleDataMap1;                    
     std::map<G4String,ParticleData> fParticleDataMap2;
+
+    G4double Eres; // energy resolution
+
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
