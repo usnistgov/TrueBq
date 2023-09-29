@@ -1,7 +1,6 @@
 # TrueBq01
-TrueBq01 is a simple Geant4 simulation for cryogenic decay-energy spectrometery.
+TrueBq01 is a Geant4 simulation for cryogenic decay-energy spectrometery.
 It has been compiled using Geant4.10.6 on Windows using Microsoft Visual Studio Community 2019
-Version 16.8.3. 
 
 TrueBq01 is based on the the rdecay02 example included with Geant4 distribtuions. 
 
@@ -10,7 +9,7 @@ TrueBq01 is based on the the rdecay02 example included with Geant4 distribtuions
 2. Download source code folder (TrueBq01)
 3. Follow Geant4 user code compilation instructions  
   3.1 I used Cmake version 3.19.2  
-  3.2 If using Visual studio, use configuration "Release" (not "Debug", which is default)   
+  3.2 If using Visual studio, use configuration "Release" or "RelWithDebInfo" (not "Debug", which is default)   
 
 
 ## Running TrueBq01
@@ -32,14 +31,16 @@ Source distribution within absorber can be set in the macro.
 
 ### Physics:
 BiasedRDPhysics with Radioactivation
+Physics list selectable in source code
+ - typically G4EmStandardPhysics_option4
+ - for single scattering, use: G4EmStandardPhysicsSS
 
 ### Event processing:
 Decay Energy Spectrum of total energy deposited in the absorber is tallied in a histogram. Other histograms can be activate.  
-Energy resoultion added as Gaussian noise. Rough resolution is based on Hoover (2015) results from LANL & NIST, scaled for mass and temperature
+Options in macro to add Gaussian noise and tailing
 
 ### Output:
-Decay Energy Spectrum of total energy deposited in the absorber is saved in default .csv file and custom .out file.
-
+Decay Energy Spectrum of total energy deposited in the absorber is saved inn custom .out file.
 
 ## Contact Information
 Ryan Fitzgerald  
